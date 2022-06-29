@@ -14,4 +14,4 @@
 #    python3 func.py "htex1" "fib" $n "-d benchmarks/bench-prof"
 #done
 
-python3 func.py "htex1" "noop" "500" "-d benchmarks/parsl_test"
+python3 func.py htex1 noop 500 -d benchmarks/parsl_test
