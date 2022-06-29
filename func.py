@@ -46,9 +46,7 @@ if __name__ == '__main__':
             "\n- [options]:"\
             "\n\t-d [directory]: save parsl runtime information to this directory"
     def parseflags(cmdlst):
-        print(cmdlst)
         for idx, arg in enumerate(cmdlst):
-            print(arg)
             if arg == '-d':
                 for name in CONFIGS.keys():
                     CONFIGS[name].run_dir = cmdlst[idx+1]
@@ -58,9 +56,7 @@ if __name__ == '__main__':
         exit()
     else:
         if len(sys.argv) > 4:
-            print("parsing")
             parseflags(sys.argv[4:len(sys.argv)])
-        print(CONFIGS[sys.argv[1]].run_dir)
         parsl.load(CONFIGS[sys.argv[1]])
         n = int(sys.argv[3])
         if sys.argv[2] == "fib":
