@@ -4,10 +4,10 @@
 
 import datetime
 import math
+import io
 import os
+import pstats
 import sys
-
-from config import CONFIGS # necessary for parse dir method
 
 # parse worker log
 # returns a task list, each tuple contains informataion from the log file 
@@ -30,18 +30,29 @@ def parse_task(file):
 # parse a directory of parsl logs; takes in a directory outputs a dictionary with keys being the name of the 
 # log directory and values being the path to the worker log files 
 # Example input directory: runinfo
-def parse_dir(directory):
-    config_names = [k for k in CONFIGS.keys()]
+def parse_dir(directory, config_names):
     dirtbl = {}
     for d in os.listdir(directory):
         for cnfg in config_names:
-            block_dirs = [bd for bd in os.listdir(directory + "/" + d + "/" + cnfg) if "block" in bd]
+            block_dirs = [bd for bd in os.listdir(f"{directory}/{d}/{cnfg}") if "block" in bd]
             wkrdirs = []
             for block_dir in block_dirs:
                 wkrdir = [f"{directory}/{d}/{cnfg}/{block_dir}/{wd}" for wd in os.listdir(directory + "/" + d + "/" + cnfg + "/" + block_dir)]
                 wkrdirs += wkrdir
             dirtbl.update({f"{d}_{cnfg}": wkrdirs})
     return dirtbl
+
+def parse_stats(file):
+    result = io.StringIO()
+    ps = pstats.Stats(file, stream=result)
+    ps.strip_dirs()
+    ps.sort_stats("tottime")
+    ps.print_stats()
+    result = result.getvalue()
+    result ='ncalls'+result.split('ncalls')[-1]
+    result = [line.rstrip().split(None,5) for line in result.split('\n')]
+    result = [r for r in result if not r == []]
+    return result
 
 # merge the task list of workers
 def merge_tsklst(task_lists):
@@ -66,17 +77,32 @@ def calc_thrghpt(task_list):
 def make_wkrtbl(logdir):
     wkrtbl = {}
     for f in os.listdir(logdir):
-        if "worker" in f:
-            wkrtbl.update({f[0:len(f)-4]: logdir + "/" + f})
+        if ".log" in f and "worker" in f:
+            wkrtbl.update({f[0:len(f)-4]: f"{logdir}/{f}"})
  
     return wkrtbl
 
+def make_statstbl(logdir):
+    statstbl = {}
+    for f in os.listdir(logdir):
+        if ".pstats" in f:
+            statstbl.update({f[0:len(f)-7]: f"{logdir}/{f}"})
+    statstbl.update({"interchange": f"{logdir}/../../interchange.pstats"})
+    return statstbl
+
 if __name__ == "__main__":
+    # print(parse_stats("benchmarks/parsl_test/162/htex_1cpw_8w/interchange.pstats"))
     # Example using the functions above 
-    dirtbl = parse_dir("latop_benchmark")
+    dirtbl = parse_dir("benchmarks/bench-prof-test", ["htex_1cpw_8w"])
     for log, wkrdirs in dirtbl.items():
-        print(f"log: {log}")
+        print(f"log: {log}; wkrdir: {wkrdirs}")
         for wkrdir in wkrdirs:
+            statstbl = make_statstbl(wkrdir)
+            for name, path in statstbl.items():
+                try:
+                    print(f"{name}: {parse_stats(path)}")
+                except Exception as e:
+                    print(f"Error {path}: {e}")
             wkrtbl = make_wkrtbl(wkrdir)
             total_tsklst = []
             for wkr, path in wkrtbl.items():
@@ -90,5 +116,3 @@ if __name__ == "__main__":
                     print(calc_thrghpt(worker_tsklst))
             total_tsklst = merge_tsklst(total_tsklst)
             print(f"\ttotal throughput: {calc_thrghpt(total_tsklst)}")
-
-
