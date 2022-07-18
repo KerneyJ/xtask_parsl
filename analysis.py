@@ -42,11 +42,13 @@ def analyze_laptop_benchmark():
     sns.scatterplot(data=noop_df, x="n", y="Throughput", ax=noop_ax)
     plt.savefig("analysis/laptop_benchmark.png")
 
-def analyze_experiments():
-    dirtbl = parse_dir("benchmarks/bench-prof-test", ["htex_1cpw_8w"])
+def analyze_experiments(exp, cnfgs):
+    dirtbl = parse_dir(f"benchmarks/{exp}", cnfgs)
     throughput = []
     experiments = []
     statsdfs = {}
+
+    # parse the files and make dataframes
     for log, wkrdirs in dirtbl.items():
         for wkrdir in wkrdirs: # in the directory benchmark, a dictionary that has only one wkrdir 
             wkrtbl = make_wkrtbl(wkrdir)
@@ -60,7 +62,7 @@ def analyze_experiments():
                     df = pd.DataFrame(data=data, columns=columns)
                     statsdfs.update({f"{stats_name}_{log}": df})
                 except Exception as e:
-                    print(f"{stats_name}_{log}: {e}")
+                    print(f"Ran into execption {type(e)}: {e} parsing {stats_name}_{log}")
             total_tsklst = []
             for wkr, path in wkrtbl.items():
                 with open(path) as wkr_file:
@@ -72,16 +74,36 @@ def analyze_experiments():
             throughput.append(calc_thrghpt(total_tsklst))
             experiments.append(int(log[:3]))
 
-    example = statsdfs["worker_3_017_htex_1cpw_8w"] # worker 3, experiment 17, config htex 1 core per worker 8 workers
-    tottime = sum(example.loc[:, "tottime"])
-    example["tottime"] = example["tottime"].apply(lambda x: x / tottime)
-    example = example[0:10]
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=(12.8,6.4))
-    ax.margins(x=1,y=1)
-    sns.barplot(data=example, x="filename:lineno(function)", y="tottime", ax=ax)
-    plt.xticks(rotation=-10, fontsize="xx-small", fontstretch=100)
-    plt.savefig("analysis/profile_example.png")
+    # Graph the data
+
+    # The code below creates graphs using the profiling data
+    for name, df in statsdfs.items():
+        tottime = sum(df.loc[:, "tottime"])
+        df["tottime"] = df["tottime"].apply(lambda x: x / tottime)
+        df.sort_values(by="tottime")
+        df = df[0:15]
+        f, ax = plt.subplots(nrows=1, ncols=1, figsize=(12.8,6.4))
+        sns.barplot(data=df, x="filename:lineno(function)", y="tottime", ax=ax)
+        plt.xticks(rotation=-10, fontsize="xx-small", fontstretch=100)
+        plt.savefig(f"analysis/{exp}/{name}.png")
+        plt.close(f)
+
+    # The code below creates graphs using the throughput data
+    df = pd.DataFrame({"Throughput": throughput}, index=experiments)
+    df = df.sort_index()
+    df["type"] = ["no_op" for _ in range(20)] + ["fib" for _ in range(20)]
+    df["n"] = [i for i in range(500, 10001, 500)] + [i for i in range(1, 21, 1)]
+    noop_df = df[:20]
+    fib_df = df[20:]
+
+    # plot the data
+    f, (fib_ax, noop_ax) = plt.subplots(nrows=1, ncols=2, figsize=(12.8,6.4))
+
+    sns.scatterplot(data=fib_df, x="n", y="Throughput", ax=fib_ax)
+    sns.scatterplot(data=noop_df, x="n", y="Throughput", ax=noop_ax)
+    plt.savefig(f"analysis/{exp}/{exp}.png")
+    plt.close(f)
 
 if __name__ == "__main__":
     # analyze_laptop_benchmark()
-    analyze_bench_prof_test()
+    analyze_experiments(exp="bench-prof-test", cnfgs=["htex_1cpw_8w"])
