@@ -42,7 +42,7 @@ def analyze_laptop_benchmark():
     sns.scatterplot(data=noop_df, x="n", y="Throughput", ax=noop_ax)
     plt.savefig("analysis/laptop_benchmark.png")
 
-def analyze_bench_prof_test():
+def analyze_experiments():
     dirtbl = parse_dir("benchmarks/bench-prof-test", ["htex_1cpw_8w"])
     throughput = []
     experiments = []
