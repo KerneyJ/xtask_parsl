@@ -91,10 +91,10 @@ def analyze_experiments(exp, cnfgs):
     # The code below creates graphs using the throughput data
     df = pd.DataFrame({"Throughput": throughput}, index=experiments)
     df = df.sort_index()
-    df["type"] = ["no_op" for _ in range(20)] + ["fib" for _ in range(20)]
-    df["n"] = [i for i in range(500, 10001, 500)] + [i for i in range(1, 21, 1)]
-    noop_df = df[:20]
-    fib_df = df[20:]
+    df["type"] = ["no_op" for _ in range(10)] + ["fib" for _ in range(6)]
+    df["n"] = [2 ** i for i in range(11, 21, 1)] + [i for i in range(5, 31, 5)]
+    noop_df = df[:10]
+    fib_df = df[10:]
 
     # plot the data
     f, (fib_ax, noop_ax) = plt.subplots(nrows=1, ncols=2, figsize=(12.8,6.4))
@@ -106,4 +106,18 @@ def analyze_experiments(exp, cnfgs):
 
 if __name__ == "__main__":
     # analyze_laptop_benchmark()
-    analyze_experiments(exp="bench-prof-test", cnfgs=["htex_1cpw_8w"])
+    from multiprocessing import Process
+    exp_cnfg = [
+            ("experiment1", ["htex_1cpw_48w"]),
+            ("experiment2", ["htex_1cpw_96w"]),
+            ("experiment3", ["htex_1cpw_136w"]),
+            ("experiment4", ["htex_1cpw_192w"]),
+    ]
+    processes = []
+    for exp, cnfg in exp_cnfg:
+        p = Process(target=analyze_experiments, args=(exp, cnfg,))
+        p.start()
+        processes.append(p)
+
+    for p in processes:
+        p.join()
