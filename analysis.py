@@ -1,6 +1,7 @@
 # script to do analysis
 # Experiments 151-170 are no ops 500 - 10000
 # Experiments 171-190 are fib 1-20
+import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -85,7 +86,9 @@ def analyze_experiments(exp, cnfgs):
         f, ax = plt.subplots(nrows=1, ncols=1, figsize=(12.8,6.4))
         sns.barplot(data=df, x="filename:lineno(function)", y="tottime", ax=ax)
         plt.xticks(rotation=-10, fontsize="xx-small", fontstretch=100)
-        plt.savefig(f"analysis/{exp}/{name}.png")
+        if not os.path.isdir(f"analysis/{exp}/{log}/"):
+            os.makedirs(f"analysis/{exp}/{log}/")
+        plt.savefig(f"analysis/{exp}/{log}/{name}.png")
         plt.close(f)
 
     # The code below creates graphs using the throughput data
@@ -118,6 +121,6 @@ if __name__ == "__main__":
         p = Process(target=analyze_experiments, args=(exp, cnfg,))
         p.start()
         processes.append(p)
-
+    
     for p in processes:
         p.join()
