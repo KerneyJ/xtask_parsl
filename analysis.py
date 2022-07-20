@@ -60,7 +60,7 @@ def analyze_experiments(exp, cnfgs):
                     data = data[1:]
                     data = [[row[0]] + [float(row[i]) for i in range(1, 4)] + [row[4], row[5]] for row in data]
                     df = pd.DataFrame(data=data, columns=columns)
-                    statsdfs.update({f"{stats_name}_{log}": df})
+                    statsdfs.update({f"{stats_name}": (df, log)})
                 except Exception as e:
                     print(f"Ran into execption {type(e)}: {e} parsing {stats_name}_{log}")
             total_tsklst = []
@@ -77,7 +77,7 @@ def analyze_experiments(exp, cnfgs):
     # Graph the data
 
     # The code below creates graphs using the profiling data
-    for name, df in statsdfs.items():
+    for name, (df, log) in statsdfs.items():
         tottime = sum(df.loc[:, "tottime"])
         df["tottime"] = df["tottime"].apply(lambda x: x / tottime)
         df.sort_values(by="tottime")
