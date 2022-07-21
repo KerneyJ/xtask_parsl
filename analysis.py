@@ -51,7 +51,9 @@ def analyze_experiments(exp, cnfgs):
 
     # parse the files and make dataframes
     for log, wkrdirs in dirtbl.items():
+        total_tsklst = []
         for wkrdir in wkrdirs: # in the directory benchmark, a dictionary that has only one wkrdir 
+            *_, block_id, node_id = wkrdir.split("/")
             wkrtbl = make_wkrtbl(wkrdir)
             statstbl = make_statstbl(wkrdir)
             for stats_name, path in statstbl.items():
@@ -61,24 +63,23 @@ def analyze_experiments(exp, cnfgs):
                     data = data[1:]
                     data = [[row[0]] + [float(row[i]) for i in range(1, 4)] + [row[4], row[5]] for row in data]
                     df = pd.DataFrame(data=data, columns=columns)
-                    statsdfs.update({f"{stats_name}": (df, log)})
+                    statsdfs.update({f"{log}_{block_id}_{node_id}_{stats_name}": (df, log, block_id, node_id, stats_name)})
                 except Exception as e:
                     print(f"Ran into execption {type(e)}: {e} parsing {stats_name}_{log}")
-            total_tsklst = []
             for wkr, path in wkrtbl.items():
                 with open(path) as wkr_file:
                     worker_tsklst = parse_task(wkr_file)
                     if not worker_tsklst:
                         continue
                     total_tsklst.append(worker_tsklst)
-            total_tsklst = merge_tsklst(total_tsklst) # turn total_tsklst from a list of task list to a list of all the task done
-            throughput.append(calc_thrghpt(total_tsklst))
-            experiments.append(int(log[:3]))
 
+        total_tsklst = merge_tsklst(total_tsklst) # turn total_tsklst from a list of task list to a list of all the task done
+        throughput.append(calc_thrghpt(total_tsklst))
+        experiments.append(int(log[:3]))
     # Graph the data
 
     # The code below creates graphs using the profiling data
-    for name, (df, log) in statsdfs.items():
+    for _, (df, log, block_id, node_id, name) in statsdfs.items():
         tottime = sum(df.loc[:, "tottime"])
         df["tottime"] = df["tottime"].apply(lambda x: x / tottime)
         df.sort_values(by="tottime")
@@ -86,11 +87,10 @@ def analyze_experiments(exp, cnfgs):
         f, ax = plt.subplots(nrows=1, ncols=1, figsize=(12.8,6.4))
         sns.barplot(data=df, x="filename:lineno(function)", y="tottime", ax=ax)
         plt.xticks(rotation=-10, fontsize="xx-small", fontstretch=100)
-        if not os.path.isdir(f"analysis/{exp}/{log}/"):
-            os.makedirs(f"analysis/{exp}/{log}/")
-        plt.savefig(f"analysis/{exp}/{log}/{name}.png")
+        if not os.path.isdir(f"analysis/{exp}/{log}/{block_id}"):
+            os.makedirs(f"analysis/{exp}/{log}/{block_id}")
+        plt.savefig(f"analysis/{exp}/{log}/{block_id}/{node_id}_{name}.png")
         plt.close(f)
-
     # The code below creates graphs using the throughput data
     df = pd.DataFrame({"Throughput": throughput}, index=experiments)
     df = df.sort_index()
@@ -109,12 +109,17 @@ def analyze_experiments(exp, cnfgs):
 
 if __name__ == "__main__":
     # analyze_laptop_benchmark()
+    # analyze_experiments("experiment5", ["htex_1cpw_48w"])
     from multiprocessing import Process
     exp_cnfg = [
             ("experiment1", ["htex_1cpw_48w"]),
             ("experiment2", ["htex_1cpw_96w"]),
             ("experiment3", ["htex_1cpw_136w"]),
             ("experiment4", ["htex_1cpw_192w"]),
+            ("experiment5", ["htex_1cpw_48w"]),
+            ("experiment6", ["htex_1cpw_96w"]),
+            ("experiment7", ["htex_1cpw_144w"]),
+            ("experiment8", ["htex_1cpw_192w"]),
     ]
     processes = []
     for exp, cnfg in exp_cnfg:
