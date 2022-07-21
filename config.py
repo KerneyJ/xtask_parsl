@@ -8,6 +8,7 @@ htex_test = Config(
         cores_per_worker=1,
         label="htex_1cpw_4w",
         managed=True,
+        worker_debug=True,
         max_workers=2,
         provider=LocalProvider(
             init_blocks=1,
@@ -25,8 +26,71 @@ htex_exp1 = Config(
         cores_per_worker=1,
         label="htex_1cpw_48w",
         managed=True,
+        max_workers=48,
+        provider=LocalProvider(
+            init_blocks=1,
+            launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
+            max_blocks=1,
+            min_blocks=1,
+        ),
+    )],
+    run_dir="runinfo",
+    )
+
+htex_exp2 = Config(
+    executors=[HighThroughputExecutor(
+        cores_per_worker=1,
+        label="htex_1cpw_96w",
+        managed=True,
+        max_workers=96,
+        provider=LocalProvider(
+            init_blocks=1,
+            launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
+            max_blocks=1,
+            min_blocks=1,
+        ),
+    )],
+    run_dir="runinfo",
+)
+
+htex_exp3 = Config(
+    executors=[HighThroughputExecutor(
+        cores_per_worker=1,
+        label="htex_1cpw_144w",
+        managed=True,
+        max_workers=144,
+        provider=LocalProvider(
+            init_blocks=1,
+            launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
+            max_blocks=1,
+            min_blocks=1,
+        ),
+    )],
+    run_dir="runinfo",
+)
+
+htex_exp4 = Config(
+    executors=[HighThroughputExecutor(
+        cores_per_worker=1,
+        label="htex_1cpw_192w",
+        managed=True,
+        max_workers=192,
+        provider=LocalProvider(
+            init_blocks=1,
+            launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
+            max_blocks=1,
+            min_blocks=1,
+        ),
+    )],
+    run_dir="runinfo",
+)
+
+htex_exp5 = Config(
+    executors=[HighThroughputExecutor(
+        cores_per_worker=1,
+        label="htex_1cpw_48w",
+        managed=True,
         max_workers=8,
-        worker_debug=True,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -36,9 +100,9 @@ htex_exp1 = Config(
         ),
     )],
     run_dir="runinfo",
-    )
+)
 
-htex_exp2 = Config(
+htex_exp6 = Config(
     executors=[HighThroughputExecutor(
         cores_per_worker=1,
         label="htex_1cpw_96w",
@@ -55,7 +119,7 @@ htex_exp2 = Config(
     run_dir="runinfo",
 )
 
-htex_exp3 = Config(
+htex_exp7 = Config(
     executors=[HighThroughputExecutor(
         cores_per_worker=1,
         label="htex_1cpw_144w",
@@ -72,7 +136,7 @@ htex_exp3 = Config(
     run_dir="runinfo",
 )
 
-htex_exp4 = Config(
+htex_exp8 = Config(
     executors=[HighThroughputExecutor(
         cores_per_worker=1,
         label="htex_1cpw_192w",
@@ -88,7 +152,8 @@ htex_exp4 = Config(
     )],
     run_dir="runinfo",
 )
-CONFIGS = {"htex_test": htex_test, "htex_exp1": htex_exp1, "htex_exp2": htex_exp2, "htex_exp3": htex_exp3, "htex_exp4": htex_exp4}
+
+CONFIGS = {"htex_test": htex_test, "htex_exp1": htex_exp1, "htex_exp2": htex_exp2, "htex_exp3": htex_exp3, "htex_exp4": htex_exp4, "htex_exp5": htex_exp5, "htex_exp6": htex_exp6, "htex_exp7": htex_exp7, "htex_exp8": htex_exp8}
 
 if __name__ == "__main__":
     for name, cnfg in CONFIGS.items():
