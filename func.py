@@ -28,16 +28,14 @@ def noop(n):
     for n in range(n):
        results.append(no_op())
 
-    while results:
-        for i, r in enumerate(results):
-            if r.done():
-                results.pop(i)
+    out = [r.result() for r in results]
 
 if __name__ == '__main__':
     import cProfile
     import datetime
     import parsl
     import sys
+    import time
     from config import CONFIGS
     USAGE = "Usage: func.py [config] [benchmark] [n] [options]"\
             "\n- where config is a parsl config from config.py"\
@@ -45,6 +43,8 @@ if __name__ == '__main__':
             "\n- n is the number of ops or the fib number"\
             "\n- [options]:"\
             "\n\t-d [directory]: save parsl runtime information to this directory"
+    start = 0
+    end = 0
     def parseflags(cmdlst):
         for idx, arg in enumerate(cmdlst):
             if arg == '-d':
@@ -60,12 +60,16 @@ if __name__ == '__main__':
         parsl.load(CONFIGS[sys.argv[1]])
         n = int(sys.argv[3])
         if sys.argv[2] == "fib":
+            start = time.perf_counter()
             cProfile.run(f"fib({n}).result()", filename=f"prof/test_fib({n})_" + str(datetime.datetime.now()))
+            end = time.perf_counter()
         elif sys.argv[2] == "noop":
-            cProfile.run(f"noop({n})", filename=f"prof/test_noop({n})_" + str(datetime.datetime.now()))
+            start = time.perf_counter()
+            cProfile.run(f"noop({n})", filename=f"prof/test_noop({n})_" + str(datetime.datetime.now())
+            end = time.perf_counter())
         else:
             print(f"Benchmark type: {sys.argv[2]} non-existent")
             exit()
         print("test: ", end="")
         print(sys.argv, end=" ")
-        print("done")
+        print(f"done in {end - start} time")
