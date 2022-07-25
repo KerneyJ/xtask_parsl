@@ -114,7 +114,7 @@ if __name__ == "__main__":
     exp_cnfg = [
             ("experiment1", ["htex_1cpw_48w"]),
             ("experiment2", ["htex_1cpw_96w"]),
-            ("experiment3", ["htex_1cpw_136w"]),
+            ("experiment3", ["htex_1cpw_144w"]),
             ("experiment4", ["htex_1cpw_192w"]),
             ("experiment5", ["htex_1cpw_48w"]),
             ("experiment6", ["htex_1cpw_96w"]),
