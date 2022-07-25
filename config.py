@@ -10,6 +10,7 @@ htex_test = Config(
         managed=True,
         worker_debug=True,
         max_workers=2,
+        prefetch_capacity=4,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -27,6 +28,7 @@ htex_exp1 = Config(
         label="htex_1cpw_48w",
         managed=True,
         max_workers=48,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -43,6 +45,7 @@ htex_exp2 = Config(
         label="htex_1cpw_96w",
         managed=True,
         max_workers=96,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -59,6 +62,7 @@ htex_exp3 = Config(
         label="htex_1cpw_144w",
         managed=True,
         max_workers=144,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -75,6 +79,7 @@ htex_exp4 = Config(
         label="htex_1cpw_192w",
         managed=True,
         max_workers=192,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -91,6 +96,7 @@ htex_exp5 = Config(
         label="htex_1cpw_48w",
         managed=True,
         max_workers=8,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -108,6 +114,7 @@ htex_exp6 = Config(
         label="htex_1cpw_96w",
         managed=True,
         max_workers=8,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -125,6 +132,7 @@ htex_exp7 = Config(
         label="htex_1cpw_144w",
         managed=True,
         max_workers=8,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
@@ -142,6 +150,7 @@ htex_exp8 = Config(
         label="htex_1cpw_192w",
         managed=True,
         max_workers=8,
+        prefetch_capacity=200,
         provider=LocalProvider(
             init_blocks=1,
             launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
