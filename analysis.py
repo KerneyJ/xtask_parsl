@@ -123,9 +123,14 @@ if __name__ == "__main__":
     ]
     processes = []
     for exp, cnfg in exp_cnfg:
-        p = Process(target=analyze_experiments, args=(exp, cnfg,))
+        p = Process(name=exp, target=analyze_experiments, args=(exp, cnfg,))
         p.start()
         processes.append(p)
     
-    for p in processes:
-        p.join()
+    while processes:
+        p = processes.pop(0)
+        if not p.is_alive():
+            p.join()
+            print(f"analysis of {p.name} has terminated")
+        else:
+            processes.append(p)
