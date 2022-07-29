@@ -1,6 +1,7 @@
 # script to do analysis
 # Experiments 151-170 are no ops 500 - 10000
 # Experiments 171-190 are fib 1-20
+# fib(30) -> 5384074 tasks; fib(25) -> 485570 tasks; fib(20) -> 43782 tasks; fib(15) -> 3946 tasks; fib(10) -> 354 tasks; fib(5) -> 30 tasks;
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
