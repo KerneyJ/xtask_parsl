@@ -87,7 +87,14 @@ def make_statstbl(logdir):
     for f in os.listdir(logdir):
         if ".pstats" in f:
             statstbl.update({f[0:len(f)-7]: f"{logdir}/{f}"})
-    statstbl.update({"interchange": f"{logdir}/../../interchange.pstats"})
+    ic_paths = [
+        ("interchange-task-puller", f"{logdir}/../../Interchange-Task-Puller.pstats"),
+        ("interchange-command", f"{logdir}/../../Interchange-Command.pstats"),
+        ("interchange-main-loop", f"{logdir}/../../Interchange-Main-Loop.pstats"),
+    ]
+    for (name, path) in ic_paths:
+        if os.path.exists(path):
+            statstbl.update({name:path})
     return statstbl
 
 if __name__ == "__main__":
