@@ -57,16 +57,18 @@ if __name__ == '__main__':
     else:
         if len(sys.argv) > 4:
             parseflags(sys.argv[4:len(sys.argv)])
-        parsl.load(CONFIGS[sys.argv[1]])
+        cnfg = CONFIGS[sys.argv[1]]
+        label = cnfg.executors[0].label
+        parsl.load(cnfg)
         n = int(sys.argv[3])
         if sys.argv[2] == "fib":
             start = time.perf_counter()
-            cProfile.run(f"fib({n}).result()", filename=f"prof/test_fib({n})_" + str(datetime.datetime.now()))
+            cProfile.run(f"fib({n}).result()", filename=f"prof/{label}-{sys.argv[2]}-{n}.pstats")
             end = time.perf_counter()
         elif sys.argv[2] == "noop":
             start = time.perf_counter()
-            cProfile.run(f"noop({n})", filename=f"prof/test_noop({n})_" + str(datetime.datetime.now())
-            end = time.perf_counter())
+            cProfile.run(f"noop({n})", filename=f"prof/{label}-{sys.argv[2]}-{n}.pstats")
+            end = time.perf_counter()
         else:
             print(f"Benchmark type: {sys.argv[2]} non-existent")
             exit()
