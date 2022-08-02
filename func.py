@@ -34,6 +34,7 @@ if __name__ == '__main__':
     import cProfile
     import datetime
     import parsl
+    import os
     import sys
     import os
     import time
