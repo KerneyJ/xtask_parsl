@@ -42,11 +42,11 @@ def parse_dir(directory, config_names):
             dirtbl.update({f"{d}_{cnfg}": wkrdirs})
     return dirtbl
 
-def parse_stats(file):
+def parse_stats(path, sortby="tottime"):
     result = io.StringIO()
-    ps = pstats.Stats(file, stream=result)
+    ps = pstats.Stats(path, stream=result)
     ps.strip_dirs()
-    ps.sort_stats("tottime")
+    ps.sort_stats(sortby)
     ps.print_stats()
     result = result.getvalue()
     result ='ncalls'+result.split('ncalls')[-1]
