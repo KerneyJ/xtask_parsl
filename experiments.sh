@@ -8,7 +8,7 @@ do
     python3 func.py htex_exp1 noop $ops -d benchmarks/experiment1
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp1 fib $n -d benchmarks/experiment1
 done
@@ -19,7 +19,7 @@ do
     python3 func.py htex_exp2 noop $ops -d benchmarks/experiment2
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp2 fib $n -d benchmarks/experiment2
 done
@@ -30,7 +30,7 @@ do
     python3 func.py htex_exp3 noop $ops -d benchmarks/experiment3
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp3 fib $n -d benchmarks/experiment3
 done
@@ -41,7 +41,7 @@ do
     python3 func.py htex_exp4 noop $ops -d benchmarks/experiment4
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp4 fib $n -d benchmarks/experiment4
 done
@@ -52,7 +52,7 @@ do
     python3 func.py htex_exp5 noop $ops -d benchmarks/experiment5
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp5 fib $n -d benchmarks/experiment5
 done
@@ -63,7 +63,7 @@ do
     python3 func.py htex_exp6 noop $ops -d benchmarks/experiment6
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp6 fib $n -d benchmarks/experiment6
 done
@@ -74,7 +74,7 @@ do
     python3 func.py htex_exp7 noop $ops -d benchmarks/experiment7
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp7 fib $n -d benchmarks/experiment7
 done
@@ -85,7 +85,7 @@ do
     python3 func.py htex_exp8 noop $ops -d benchmarks/experiment8
 done
 
-for n in 5 10 15 20 25 30
+for n in 5 10 15 20 25
 do
     python3 func.py htex_exp8 fib $n -d benchmarks/experiment8
 done
