@@ -94,8 +94,8 @@ def analyze_experiments(exp, cnfgs):
     # The code below creates graphs using the throughput data
     df = pd.DataFrame({"Throughput": throughput}, index=experiments)
     df = df.sort_index()
-    df["type"] = ["no_op" for _ in range(10)] + ["fib" for _ in range(6)]
-    df["n"] = [2 ** i for i in range(11, 21, 1)] + [i for i in range(5, 31, 5)]
+    df["type"] = ["no_op" for _ in range(5)] + ["fib" for _ in range(5)]
+    df["n"] = [1000, 5000, 10000, 50000, 100000] + [5, 10, 15, 20, 25]
     noop_df = df[:10]
     fib_df = df[10:]
 
@@ -107,20 +107,40 @@ def analyze_experiments(exp, cnfgs):
     plt.savefig(f"analysis/{exp}/{exp}.png")
     plt.close(f)
 
+def analyze_profdir(cnfg_name):
+    statstbl = [(f"prof/{cnfg_name}/", stats) for stats in os.listdir(f"prof/{cnfg_name}") if ".pstats" in stats]
+    for directory, path in statstbl:
+        data = parse_stats(directory+path, sortby="tottime")
+        columns = data[0]
+        data = data[1:]
+        data = [[row[0]] + [float(row[i]) for i in range(1, 4)] + [row[4], row[5]] for row in data]
+        df = pd.DataFrame(data=data, columns=columns)
+        df = df[0:15]
+        f, ax = plt.subplots(nrows=1, ncols=1, figsize=(12.8, 6.4))
+        sns.barplot(data=df, x="filename:lineno(function)", y="tottime", ax=ax)
+        plt.xticks(rotation=-10, fontsize="xx-small", fontstretch=100)
+        name, _ = path.split(".")
+        plt.savefig(f"{directory}{name}.png")
+        plt.close(f)
+
 if __name__ == "__main__":
-    # analyze_laptop_benchmark()
+    #analyze_laptop_benchmark()
     # analyze_experiments("experiment5", ["htex_1cpw_48w"])
     from multiprocessing import Process
+    experiments = ["htex_exp1", "htex_exp2", "htex_exp3", "htex_exp4", "htex_exp5", "htex_exp6", "htex_exp7","htex_exp8"]
+    for exp in experiments:
+         analyze_profdir(exp)
     exp_cnfg = [
             ("experiment1", ["htex_1cpw_48w"]),
             ("experiment2", ["htex_1cpw_96w"]),
             ("experiment3", ["htex_1cpw_144w"]),
             ("experiment4", ["htex_1cpw_192w"]),
-            ("experiment5", ["htex_1cpw_48w"]),
-            ("experiment6", ["htex_1cpw_96w"]),
-            ("experiment7", ["htex_1cpw_144w"]),
-            ("experiment8", ["htex_1cpw_192w"]),
+            #("experiment5", ["htex_1cpw_48w"]),
+            #("experiment6", ["htex_1cpw_96w"]),
+            #("experiment7", ["htex_1cpw_144w"]),
+            #("experiment8", ["htex_1cpw_192w"]),
     ]
+    print("done creating prof images")
     processes = []
     for exp, cnfg in exp_cnfg:
         p = Process(name=exp, target=analyze_experiments, args=(exp, cnfg,))
