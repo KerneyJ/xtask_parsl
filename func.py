@@ -35,6 +35,7 @@ if __name__ == '__main__':
     import datetime
     import parsl
     import sys
+    import os
     import time
     from config import CONFIGS
     USAGE = "Usage: func.py [config] [benchmark] [n] [options]"\
@@ -57,17 +58,18 @@ if __name__ == '__main__':
     else:
         if len(sys.argv) > 4:
             parseflags(sys.argv[4:len(sys.argv)])
-        cnfg = CONFIGS[sys.argv[1]]
-        label = cnfg.executors[0].label
-        parsl.load(cnfg)
+        label = sys.argv[1]
+        parsl.load(CONFIGS[label])
         n = int(sys.argv[3])
+        if not os.path.isdir(f"prof/{label}"):
+            os.makedirs(f"prof/{label}")
         if sys.argv[2] == "fib":
             start = time.perf_counter()
-            cProfile.run(f"fib({n}).result()", filename=f"prof/{label}-{sys.argv[2]}-{n}.pstats")
+            cProfile.run(f"fib({n}).result()", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
             end = time.perf_counter()
         elif sys.argv[2] == "noop":
             start = time.perf_counter()
-            cProfile.run(f"noop({n})", filename=f"prof/{label}-{sys.argv[2]}-{n}.pstats")
+            cProfile.run(f"noop({n})", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
             end = time.perf_counter()
         else:
             print(f"Benchmark type: {sys.argv[2]} non-existent")
