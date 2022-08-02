@@ -34,6 +34,7 @@ if __name__ == '__main__':
     import cProfile
     import datetime
     import parsl
+    import os
     import sys
     import time
     from config import CONFIGS
@@ -61,6 +62,8 @@ if __name__ == '__main__':
         label = cnfg.executors[0].label
         parsl.load(cnfg)
         n = int(sys.argv[3])
+        if not os.path.isdir("prof/"):
+            os.makedirs("prof/")
         if sys.argv[2] == "fib":
             start = time.perf_counter()
             cProfile.run(f"fib({n}).result()", filename=f"prof/{label}-{sys.argv[2]}-{n}.pstats")
