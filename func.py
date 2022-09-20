@@ -66,7 +66,7 @@ if __name__ == '__main__':
             os.makedirs(f"prof/{label}")
         if sys.argv[2] == "fib":
             start = time.perf_counter()
-            cProfile.run(f"fib({n}).result()", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
+            cProfile.run(f"print(fib({n}).result())", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
             end = time.perf_counter()
         elif sys.argv[2] == "noop":
             start = time.perf_counter()

@@ -162,7 +162,26 @@ htex_exp8 = Config(
     run_dir="runinfo",
 )
 
-CONFIGS = {"htex_test": htex_test, "htex_exp1": htex_exp1, "htex_exp2": htex_exp2, "htex_exp3": htex_exp3, "htex_exp4": htex_exp4, "htex_exp5": htex_exp5, "htex_exp6": htex_exp6, "htex_exp7": htex_exp7, "htex_exp8": htex_exp8}
+htex_lq = Config(
+    executors=[HighThroughputExecutor(
+        cores_per_worker=1,
+        label="htex_1cpw_1w",
+        managed=True,
+        max_workers=1,
+        prefetch_capacity=200,
+        provider=LocalProvider(
+            init_blocks=1,
+            launcher=SingleNodeLauncher(debug=True, fail_on_any=False),
+            max_blocks=1,
+            min_blocks=1,
+            nodes_per_block=1,
+        ),
+    )],
+    run_dir="runinfo",
+)
+
+
+CONFIGS = {"htex_test": htex_test, "htex_exp1": htex_exp1, "htex_exp2": htex_exp2, "htex_exp3": htex_exp3, "htex_exp4": htex_exp4, "htex_exp5": htex_exp5, "htex_exp6": htex_exp6, "htex_exp7": htex_exp7, "htex_exp8": htex_exp8, "htex_lq": htex_lq}
 
 if __name__ == "__main__":
     for name, cnfg in CONFIGS.items():
