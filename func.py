@@ -71,8 +71,8 @@ if __name__ == '__main__':
             end = time.time()
         elif sys.argv[2] == "noop":
             start = time.time()
-            noop(n)
             #cProfile.run(f"noop({n})", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
+            noop(n)
             end = time.time()
         else:
             print(f"Benchmark type: {sys.argv[2]} non-existent")
