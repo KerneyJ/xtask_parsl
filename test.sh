@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 source ../forkenv/bin/activate && pip freeze | xargs pip uninstall -y
 ../forkenv/bin/python3 -m pip install ../parsl/.
