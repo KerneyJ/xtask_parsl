@@ -31,52 +31,91 @@ def noop(n):
     out = [r.result() for r in results]
 
 if __name__ == '__main__':
-    import cProfile
     import datetime
     import parsl
     import os
     import sys
     import os
     import time
-    from config import CONFIGS
-    USAGE = "Usage: func.py [config] [benchmark] [n] [options]"\
-            "\n- where config is a parsl config from config.py"\
-            "\n- benchmark is a type of benchmark fib or noop"\
-            "\n- n is the number of ops or the fib number"\
+    from parsl.config import Config
+    USAGE = "Usage: func.py [executor] [blocks] [workers] [benchmark] [n] [options]"\
+            "\n- [executor]  xq or htex"\
+            "\n- [blocks]    integer number of blocks"\
+            "\n- [workers]   integer number of workers"\
+            "\n- [benchmark] fib or noop"\
+            "\n- [n]         integer"\
             "\n- [options]:"\
             "\n\t-d [directory]: save parsl runtime information to this directory"
     start = 0
     end = 0
     def parseflags(cmdlst):
+        parsed_args = {}
         for idx, arg in enumerate(cmdlst):
             if arg == '-d':
-                for name in CONFIGS.keys():
-                    CONFIGS[name].run_dir = cmdlst[idx+1]
+                parsed_args["dir"] = cmdlst[idx+1]
+        return parsed_args
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 6:
         print(USAGE)
         exit()
     else:
-        if len(sys.argv) > 4:
-            parseflags(sys.argv[4:len(sys.argv)])
-        label = sys.argv[1]
-        parsl.load(CONFIGS[label])
-        n = int(sys.argv[3])
-        if not os.path.isdir(f"prof/{label}"):
-            os.makedirs(f"prof/{label}")
-        if sys.argv[2] == "fib":
+        exec_arg = sys.argv[1]
+        blocks_arg = sys.argv[2]
+        workers_arg = sys.argv[3]
+        benchmark_arg = sys.argv[4]
+        n_arg = sys.argv[5]
+        parsed_args = None
+        dir_arg = None
+
+        if len(sys.argv) > 6:
+            parsed_args = parseflags(sys.argv)
+            if "dir" in parsed_args:
+                dir_arg = parsed_args["dir"]
+
+        # get executor
+        executor = None
+        if exec_arg == "htex":
+            from parsl.executors import HighThroughputExecutor
+            from parsl.providers import LocalProvider
+            executor = HighThroughputExecutor(
+                cores_per_worker=1,
+                label=f"htex_{blocks_arg}b_{workers_arg}w",
+                managed=True,
+                worker_debug=False,
+                max_workers=int(workers_arg),
+                provider=LocalProvider(
+                    init_blocks=int(blocks_arg),
+                    max_blocks=int(blocks_arg),
+                    min_blocks=int(blocks_arg),
+                    nodes_per_block=1,
+                ),
+            )
+        elif exec_arg =="xq":
+            from parsl.executors import XQExecutor
+            executor = XQExecutor(
+                max_workers=int(workers_arg),
+            )
+        else:
+            exit()
+
+        parsl.load(Config(
+                executors=[executor],
+                run_dir = dir_arg if dir_arg else "runinfo",
+            )
+        )
+
+        if benchmark_arg == "fib":
             start = time.time()
-            # cProfile.run(f"fib({n}).result()", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
-            a = fib(n).result()
+            a = fib(int(n_arg)).result()
             end = time.time()
-        elif sys.argv[2] == "noop":
+        elif benchmark_arg == "noop":
             start = time.time()
-            #cProfile.run(f"noop({n})", filename=f"prof/{label}/{sys.argv[2]}-{n}.pstats")
-            noop(n)
+            noop(int(n_arg))
             end = time.time()
         else:
-            print(f"Benchmark type: {sys.argv[2]} non-existent")
+            print(f"Benchmark type: {benchmark_arg} non-existent")
             exit()
+
         print("test: ", end="")
-        print(sys.argv, end=" ")
-        print(f"done in {end - start} time")
+        print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
+        print(f"{end - start}")
