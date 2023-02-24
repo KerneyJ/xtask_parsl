@@ -39,7 +39,7 @@ if __name__ == '__main__':
     import time
     from parsl.config import Config
     USAGE = "Usage: func.py [executor] [blocks] [workers] [benchmark] [n] [options]"\
-            "\n- [executor]  xq or htex"\
+            "\n- [executor]  xq, wq, or htex"\
             "\n- [blocks]    integer number of blocks"\
             "\n- [workers]   integer number of workers"\
             "\n- [benchmark] fib or noop"\
@@ -90,12 +90,22 @@ if __name__ == '__main__':
                     nodes_per_block=1,
                 ),
             )
-        elif exec_arg =="xq":
+        elif exec_arg == "xq":
             from parsl.executors import XQExecutor
             executor = XQExecutor(
                 max_workers=int(workers_arg),
             )
+        elif exec_arg == "wq":
+            from parsl.executors import WorkQueueExecutor
+            executor = WorkQueueExecutor(
+                label=f"wq-parsl-app",
+                port=9123,
+                project_name="wq-parsl-app",
+                shared_fs=False,
+                full_debug=True,
+            )
         else:
+            print(f"executor argument: {exec_arg} invalid")
             exit()
 
         parsl.load(Config(
