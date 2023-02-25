@@ -25,10 +25,24 @@ def fib(n):
 # does n no ops
 def noop(n):
     results = []
-    for n in range(n):
+    for i in range(n):
        results.append(no_op())
 
     out = [r.result() for r in results]
+
+# launchs a python app add function that peforms 2+2 n times
+def nsums(n):
+    @python_app
+    def add():
+        return 2 + 2
+    start = time.time()
+    results = []
+    for i in range(n):
+        results.append(add())
+
+    out = [r.result() for r in results]
+    end = time.time()
+    return start, end
 
 if __name__ == '__main__':
     import datetime
@@ -42,12 +56,13 @@ if __name__ == '__main__':
             "\n- [executor]  xq, wq, or htex"\
             "\n- [blocks]    integer number of blocks"\
             "\n- [workers]   integer number of workers"\
-            "\n- [benchmark] fib or noop"\
+            "\n- [benchmark] fib noop or nsums"\
             "\n- [n]         integer"\
             "\n- [options]:"\
             "\n\t-d [directory]: save parsl runtime information to this directory"
     start = 0
     end = 0
+    result = None
     def parseflags(cmdlst):
         parsed_args = {}
         for idx, arg in enumerate(cmdlst):
@@ -80,7 +95,6 @@ if __name__ == '__main__':
             executor = HighThroughputExecutor(
                 cores_per_worker=1,
                 label=f"htex_{blocks_arg}b_{workers_arg}w",
-                managed=True,
                 worker_debug=False,
                 max_workers=int(workers_arg),
                 provider=LocalProvider(
@@ -116,16 +130,19 @@ if __name__ == '__main__':
 
         if benchmark_arg == "fib":
             start = time.time()
-            a = fib(int(n_arg)).result()
+            result = fib(int(n_arg)).result()
             end = time.time()
         elif benchmark_arg == "noop":
             start = time.time()
             noop(int(n_arg))
             end = time.time()
+        elif benchmark_arg == "nsums":
+            start, end = nsums(int(n_arg))
         else:
             print(f"Benchmark type: {benchmark_arg} non-existent")
             exit()
 
-        print("test: ", end="")
+        print("Test: ", end="")
         print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
-        print(f"{end - start}")
+        print(f"Result: {result}", end=" ")
+        print(f"Time: {end - start}")
