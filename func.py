@@ -42,6 +42,8 @@ def nsums(n):
 
     out = [r.result() for r in results]
     end = time.time()
+    for o in out:
+        assert o == 4
     return start, end
 
 if __name__ == '__main__':
