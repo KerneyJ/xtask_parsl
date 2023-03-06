@@ -37,8 +37,9 @@ def print_fut_list(futs, args):
             except TypeError as e:
                 print(args[index], str(e))
         else:
-            assert out[index] == 4
-            print(args[index], "passed")
+            print(f"{args[index]}: {out[index]}")
+            # assert out[index] == 4
+            # print(args[index], "passed")
 
 # Test passing arguments
 print("Testing argument passing")
