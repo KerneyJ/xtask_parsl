@@ -38,8 +38,6 @@ def print_fut_list(futs, args):
                 print(args[index], str(e))
         else:
             print(f"{args[index]}: {out[index]}")
-            # assert out[index] == 4
-            # print(args[index], "passed")
 
 # Test passing arguments
 print("Testing argument passing")
@@ -52,8 +50,8 @@ nums = [add_args(2,2),
 
 args = ["an()", "aa(2,2)", "aa(2,b=2)", "aa(a=2,b=2)", "ak()", "ak(2,2)", "ak(a=2)", "ak(b=2)", "ak(2, b=2)"]
 print_fut_list(nums, args)
-
 print("\n\n",end='')
+
 # Test dependencies
 print("Testing dependencies")
 a = add()
@@ -61,3 +59,9 @@ b = add_args(a, 3)
 c = add_args(a, 4)
 d = add_args(b, c)
 print_fut_list([a,b,c,d], ["a", "b", "c", "d"])
+# print("\n\n", end='')
+
+# Test add_args(add(), add())
+print("Testing add_args(add(), addd())")
+v = add_args(add(), add())
+print_fut_list([a], ["add_arg(add(), add())"])
