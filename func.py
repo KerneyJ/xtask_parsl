@@ -1,4 +1,5 @@
 from parsl import python_app, join_app 
+from concurrent.futures import Future
 
 @python_app
 def no_op():
@@ -22,6 +23,19 @@ def fib(n):
     else:
         return add(fib(n - 1), fib(n - 2))
 
+def fibi(n):
+    @python_app
+    def add(a, b):
+        return a + b
+    start = time.time()
+    counter = 0
+    results = [0, 1]
+    while counter < n - 1:
+        counter += 1
+        results.append(add(results[counter - 1], results[counter]))
+    end = time.time()
+    return start, end, results[-1].result()
+
 # does n no ops
 def noop(n):
     results = []
@@ -39,7 +53,6 @@ def nsums(n):
     results = []
     for i in range(n):
         results.append(add())
-
     out = [r.result() for r in results]
     end = time.time()
     for o in out:
@@ -54,11 +67,17 @@ if __name__ == '__main__':
     import os
     import time
     from parsl.config import Config
+    cdfk = False
+    try:
+        import cdflow
+        cdfk = True
+    except:
+        pass
     USAGE = "Usage: func.py [executor] [blocks] [workers] [benchmark] [n] [options]"\
             "\n- [executor]  xq, wq, or htex"\
             "\n- [blocks]    integer number of blocks"\
             "\n- [workers]   integer number of workers"\
-            "\n- [benchmark] fib noop or nsums"\
+            "\n- [benchmark] fib fibi noop or nsums"\
             "\n- [n]         integer"\
             "\n- [options]:"\
             "\n\t-d [directory]: save parsl runtime information to this directory"
@@ -140,6 +159,8 @@ if __name__ == '__main__':
             end = time.time()
         elif benchmark_arg == "nsums":
             start, end = nsums(int(n_arg))
+        elif benchmark_arg == "fibi":
+            start, end, result = fibi(int(n_arg))
         else:
             print(f"Benchmark type: {benchmark_arg} non-existent")
             exit()
@@ -147,4 +168,6 @@ if __name__ == '__main__':
         print("Test: ", end="")
         print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
         print(f"Result: {result}", end=" ")
+        if cdfk:
+            print(f"CDFK info: {cdflow.info_dfk()}", end=" ")
         print(f"Time: {end - start}")
