@@ -64,7 +64,7 @@ if __name__ == '__main__':
     import parsl
     import os
     import sys
-    import os
+    import cProfile
     import time
     from parsl.config import Config
     cdfk = False
@@ -148,22 +148,24 @@ if __name__ == '__main__':
                 run_dir = dir_arg if dir_arg else "runinfo",
             )
         )
+        with cProfile.Profile() as pr:
+            if benchmark_arg == "fib":
+                start = time.time()
+                result = fib(int(n_arg)).result()
+                end = time.time()
+            elif benchmark_arg == "noop":
+                start = time.time()
+                noop(int(n_arg))
+                end = time.time()
+            elif benchmark_arg == "nsums":
+                start, end = nsums(int(n_arg))
+            elif benchmark_arg == "fibi":
+                start, end, result = fibi(int(n_arg))
+            else:
+                print(f"Benchmark type: {benchmark_arg} non-existent")
+                exit()
 
-        if benchmark_arg == "fib":
-            start = time.time()
-            result = fib(int(n_arg)).result()
-            end = time.time()
-        elif benchmark_arg == "noop":
-            start = time.time()
-            noop(int(n_arg))
-            end = time.time()
-        elif benchmark_arg == "nsums":
-            start, end = nsums(int(n_arg))
-        elif benchmark_arg == "fibi":
-            start, end, result = fibi(int(n_arg))
-        else:
-            print(f"Benchmark type: {benchmark_arg} non-existent")
-            exit()
+            pr.dump_stats(f"./prof/{exec_arg}_{'cdfk_' if cdfk else ''}{benchmark_arg}_{n_arg}.prof")
 
         print("Test: ", end="")
         print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
