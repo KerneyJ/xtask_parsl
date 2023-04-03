@@ -63,6 +63,7 @@ if __name__ == '__main__':
     import datetime
     import parsl
     import os
+    import gc
     import sys
     import cProfile
     import time
@@ -148,6 +149,7 @@ if __name__ == '__main__':
                 run_dir = dir_arg if dir_arg else "runinfo",
             )
         )
+        print(f"Number of existing objects {len(gc.get_objects())}")
         with cProfile.Profile() as pr:
             if benchmark_arg == "fib":
                 start = time.time()
@@ -166,7 +168,7 @@ if __name__ == '__main__':
                 exit()
 
             pr.dump_stats(f"./prof/{exec_arg}_{'cdfk_' if cdfk else ''}{benchmark_arg}_{n_arg}.prof")
-
+        print(f"Number of existing objects {len(gc.get_objects())}")
         print("Test: ", end="")
         print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
         print(f"Result: {result}", end=" ")
