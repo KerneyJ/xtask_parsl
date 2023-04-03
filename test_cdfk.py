@@ -65,3 +65,10 @@ print_fut_list([a,b,c,d], ["a", "b", "c", "d"])
 print("Testing add_args(add(), addd())")
 v = add_args(add(), add())
 print_fut_list([a], ["add_arg(add(), add())"])
+
+# Test func args and kwargs property
+print("Testing func args and kwargs property")
+v = add_args(2, b=2)
+print(v.args)
+print(v.kwargs)
+print(v.func)
