@@ -52,7 +52,7 @@ def interchange_tagging():
     
     f.savefig("interchange_tagging.png")
 
-def print_direct_to_worker_txt()
+def print_direct_to_worker_txt():
     for i in range(5, 30, 5):
         runtime = []
         for j in [1, 2, 4, 8, 16, 32, 64, 128]:
@@ -61,3 +61,18 @@ def print_direct_to_worker_txt()
             r = sum(data)/10
             runtime.append(r)
         print(f"fib({i}): {runtime}")
+
+f = open("dfkbench.txt", "r")
+batch = [i+1 for i in range(500)]
+throughput = [float(line) for line in f]
+df = pd.DataFrame({"Batch": batch, "Throughput(task/second)": throughput})
+f1, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(6.4,6.4))
+f2, ax2 = plt.subplots(nrows=1, ncols=1, figsize=(6.4,6.4))
+
+ax2.set_ylabel("Batch")
+sns.lineplot(data=df, x="Batch", y="Throughput(task/second)", ax=ax1)
+sns.histplot(data=df, x="Throughput(task/second)", kde=True, ax=ax2)
+f1.suptitle("DFK Throughput no-op 500k")
+f2.suptitle("DFK Throughput no-op 500k")
+f1.savefig("dfkbench_line.png")
+f2.savefig("dfkbench_hist.png")
