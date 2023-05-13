@@ -3,8 +3,11 @@ from concurrent.futures import Future
 
 @python_app
 def no_op():
+    # 1e-6 = us
+    # 1e-3 = ms
+    # 1e0 = s
     import time
-    time.sleep(0)
+    time.sleep(1e-6)
     return None
 
 @python_app
@@ -38,12 +41,15 @@ def fibi(n):
 
 # does n no ops
 def noop(n):
+    start = time.time()
+
     results = []
     for i in range(n):
        results.append(no_op())
-
     out = [r.result() for r in results]
-
+    
+    end = time.time()
+    return start, end
 # launchs a python app add function that peforms 2+2 n times
 def nsums(n):
     @python_app
@@ -149,16 +155,15 @@ if __name__ == '__main__':
                 run_dir = dir_arg if dir_arg else "runinfo",
             )
         )
-        print(f"Number of existing objects {len(gc.get_objects())}")
+        # gc.disable()
+        init_objs = len(gc.get_objects())
         with cProfile.Profile() as pr:
             if benchmark_arg == "fib":
                 start = time.time()
                 result = fib(int(n_arg)).result()
                 end = time.time()
             elif benchmark_arg == "noop":
-                start = time.time()
-                noop(int(n_arg))
-                end = time.time()
+                start, end = noop(int(n_arg))
             elif benchmark_arg == "nsums":
                 start, end = nsums(int(n_arg))
             elif benchmark_arg == "fibi":
@@ -167,11 +172,15 @@ if __name__ == '__main__':
                 print(f"Benchmark type: {benchmark_arg} non-existent")
                 exit()
 
-            pr.dump_stats(f"./prof/{exec_arg}_{'cdfk_' if cdfk else ''}{benchmark_arg}_{n_arg}.prof")
-        print(f"Number of existing objects {len(gc.get_objects())}")
-        print("Test: ", end="")
-        print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
-        print(f"Result: {result}", end=" ")
+        pr.dump_stats(f"./prof/{exec_arg}_{'cdfk_' if cdfk else ''}{benchmark_arg}_{n_arg}.prof")
+        end_objs = len(gc.get_objects())
+        # print("Test: ", end="")
+        # print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
+        # print(f"Result: {result}", end=" ")
         if cdfk:
-            print(f"CDFK info: {cdflow.info_dfk()}", end=" ")
-        print(f"Time: {end - start}")
+            pass
+            # print(f"CDFK info: {cdflow.info_dfk()}", end=" ")
+        # print(f"{workers_arg * block_arg},{n_arg}", end=",")
+        print(f"{end - start}")
+        # print(f"{end_objs - init_objs}")
+
