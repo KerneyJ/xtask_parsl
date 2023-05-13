@@ -2,12 +2,9 @@ from parsl import python_app, join_app
 from concurrent.futures import Future
 
 @python_app
-def no_op():
-    # 1e-6 = us
-    # 1e-3 = ms
-    # 1e0 = s
+def no_op(sleeptime):
     import time
-    time.sleep(1e-6)
+    time.sleep(sleeptime)
     return None
 
 @python_app
@@ -40,12 +37,12 @@ def fibi(n):
     return start, end, results[-1].result()
 
 # does n no ops
-def noop(n):
+def noop(n, sleeptime):
     start = time.time()
 
     results = []
     for i in range(n):
-       results.append(no_op())
+       results.append(no_op(sleeptime))
     out = [r.result() for r in results]
     
     end = time.time()
@@ -73,114 +70,107 @@ if __name__ == '__main__':
     import sys
     import cProfile
     import time
+    import argparse
     from parsl.config import Config
+
+    parser = argparse.ArgumentParser(
+                    prog='func.py',
+                    description='Test parsl with different workloads and numbers of workers')
+    parser.add_argument("executor", type=str, help="htex, xq(if defined), or wq", choices=["htex", "xq", "wq"])
+    parser.add_argument("blocks", type=int, help="number of execution blocks")
+    parser.add_argument("workers", type=int, help="number of workers per block")
+    parser.add_argument("benchmark", type=str, help="fib(recursive), fibi(iterative), noop, nsums", choices=["fib", "fibi", "noop", "nsums"])
+    parser.add_argument("n", type=int, help="number of tasks")
+    parser.add_argument("-s", "--sleep", dest="sleep_time", action="store", default=0, type=int, help="amount of time to sleep during noop in microseconds")
+    parser.add_argument("-d", "--directory", dest="save_dir", action="store", default=0, type=str, help="directory to save Parsl runtime information(runinfo by default)")
+    parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="print extra runtime information")
+    parser.add_argument("-p", "--profile", dest="profile", action="store_true", help="profile the submit script(i.e. DFK and Executor")
+    parser.add_argument("-nogc", "--no_garbage_collector", dest="nogarbcoll", action="store_true", help="disable the garbage collection")
+    args = parser.parse_args()
+
     cdfk = False
     try:
         import cdflow
         cdfk = True
+        if args.verbose:
+            print("CDFK Loaded")
     except:
-        pass
-    USAGE = "Usage: func.py [executor] [blocks] [workers] [benchmark] [n] [options]"\
-            "\n- [executor]  xq, wq, or htex"\
-            "\n- [blocks]    integer number of blocks"\
-            "\n- [workers]   integer number of workers"\
-            "\n- [benchmark] fib fibi noop or nsums"\
-            "\n- [n]         integer"\
-            "\n- [options]:"\
-            "\n\t-d [directory]: save parsl runtime information to this directory"
+        if args.verbose:
+            print("CDFK Not loaded")
+
     start = 0
     end = 0
     result = None
-    def parseflags(cmdlst):
-        parsed_args = {}
-        for idx, arg in enumerate(cmdlst):
-            if arg == '-d':
-                parsed_args["dir"] = cmdlst[idx+1]
-        return parsed_args
+    executor = None
 
-    if len(sys.argv) < 6:
-        print(USAGE)
-        exit()
-    else:
-        exec_arg = sys.argv[1]
-        blocks_arg = sys.argv[2]
-        workers_arg = sys.argv[3]
-        benchmark_arg = sys.argv[4]
-        n_arg = sys.argv[5]
-        parsed_args = None
-        dir_arg = None
-
-        if len(sys.argv) > 6:
-            parsed_args = parseflags(sys.argv)
-            if "dir" in parsed_args:
-                dir_arg = parsed_args["dir"]
-
-        # get executor
-        executor = None
-        if exec_arg == "htex":
-            from parsl.executors import HighThroughputExecutor
-            from parsl.providers import LocalProvider
-            executor = HighThroughputExecutor(
-                cores_per_worker=1,
-                label=f"htex_{blocks_arg}b_{workers_arg}w",
-                worker_debug=False,
-                max_workers=int(workers_arg),
-                provider=LocalProvider(
-                    init_blocks=int(blocks_arg),
-                    max_blocks=int(blocks_arg),
-                    min_blocks=int(blocks_arg),
-                    nodes_per_block=1,
-                ),
-            )
-        elif exec_arg == "xq":
-            from parsl.executors import XQExecutor
-            executor = XQExecutor(
-                max_workers=int(workers_arg),
-            )
-        elif exec_arg == "wq":
-            from parsl.executors import WorkQueueExecutor
-            executor = WorkQueueExecutor(
-                label=f"wq-parsl-app",
-                port=9123,
-                project_name="wq-parsl-app",
-                shared_fs=False,
-                full_debug=True,
-            )
-        else:
-            print(f"executor argument: {exec_arg} invalid")
-            exit()
-
-        parsl.load(Config(
-                executors=[executor],
-                run_dir = dir_arg if dir_arg else "runinfo",
-            )
+    if args.executor == "htex":
+        from parsl.executors import HighThroughputExecutor
+        from parsl.providers import LocalProvider
+        executor = HighThroughputExecutor(
+            cores_per_worker=1,
+            label=f"htex_{args.blocks}b_{args.workers}w",
+            worker_debug=False,
+            max_workers=args.workers,
+            provider=LocalProvider(
+                init_blocks=int(args.blocks),
+                max_blocks=int(args.blocks),
+                min_blocks=int(args.blocks),
+                nodes_per_block=1,
+            ),
         )
-        # gc.disable()
-        init_objs = len(gc.get_objects())
-        with cProfile.Profile() as pr:
-            if benchmark_arg == "fib":
-                start = time.time()
-                result = fib(int(n_arg)).result()
-                end = time.time()
-            elif benchmark_arg == "noop":
-                start, end = noop(int(n_arg))
-            elif benchmark_arg == "nsums":
-                start, end = nsums(int(n_arg))
-            elif benchmark_arg == "fibi":
-                start, end, result = fibi(int(n_arg))
-            else:
-                print(f"Benchmark type: {benchmark_arg} non-existent")
-                exit()
+    elif args.executor == "xq":
+        from parsl.executors import XQExecutor
+        executor = XQExecutor(
+            max_workers=int(args.workers),
+        )
+    elif args.executor == "wq":
+        from parsl.executors import WorkQueueExecutor
+        executor = WorkQueueExecutor(
+            label=f"wq-parsl-app",
+            port=9123,
+            project_name="wq-parsl-app",
+            shared_fs=False,
+            full_debug=True,
+        )
 
-        pr.dump_stats(f"./prof/{exec_arg}_{'cdfk_' if cdfk else ''}{benchmark_arg}_{n_arg}.prof")
+    parsl.load(Config(
+            executors=[executor],
+            run_dir = args.save_dir if args.save_dir else "runinfo",
+        )
+    )
+    if args.nogarbcoll:
+        gc.disable()
+    if args.verbose:
+        init_objs = len(gc.get_objects())
+
+    pr = cProfile.Profile()
+    if args.profile:
+        pr.enable()
+
+    if args.benchmark == "fib":
+        start = time.time()
+        result = fib(args.n).result()
+        end = time.time()
+    elif args.benchmark == "noop":
+        start, end = noop(args.n, args.sleep_time/1e6)
+    elif args.benchmark == "nsums":
+        start, end = nsums(args.n)
+    elif args.benchmark == "fibi":
+        start, end, result = fibi(args.n)
+
+    if args.profile:
+        pr.disable()
+        pr.dump_stats(f"./prof/{args.executor}_{'cdfk_' if cdfk else ''}{args.executor}_{args.n}.prof")
+
+    if args.verbose:
         end_objs = len(gc.get_objects())
-        # print("Test: ", end="")
-        # print(exec_arg, blocks_arg, workers_arg, benchmark_arg, n_arg, end=" ")
-        # print(f"Result: {result}", end=" ")
+        print("Test: ", end="")
+        print(args.executor, args.blocks, args.workers, args.benchmark, args.n, end=" ")
+        print(f"Result: {result}", end=" ")
         if cdfk:
-            pass
-            # print(f"CDFK info: {cdflow.info_dfk()}", end=" ")
-        # print(f"{workers_arg * block_arg},{n_arg}", end=",")
-        print(f"{end - start}")
-        # print(f"{end_objs - init_objs}")
+            print(f"CDFK info: {cdflow.info_dfk()}", end=" ")
+
+        print(f"Total Workers: {args.workers * args.blocks}", end=",")
+        print(f"Objects created: {end_objs - init_objs}, Runtime:", end=" ")
+    print(f"{end - start}")
 
