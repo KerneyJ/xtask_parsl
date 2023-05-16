@@ -5,6 +5,8 @@ import pandas as pd
 import seaborn as sns
 
 from matplotlib.scale import LogScale
+
+# sns.set(font_scale=5)
 sns.set_theme(style="whitegrid")
 figsize=(12.8,6.4)
 
@@ -186,7 +188,7 @@ def singleq_vs_multiq():
 def cdfkdirex_vs_all():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
 
-    cdfk_direx_runtime = [1.0357314348220825, 0.9358649969100952, 0.8849812507629394, 0.9049288272857666, 1.0458908081054688, 1.0767723321914673, 1.1763696432113648, 1.2288320064544678]
+    cdfk_direx_runtime = [0.9177794694900513,0.7923081636428833,0.7211169958114624,0.7381311416625976,0.7386274337768555,0.7844016313552856,0.8391645669937133,0.8448013305664063]
     cdfk_runtime = [1.113578200340271, 1.1074100494384767, 1.103058385848999, 1.1020861387252807, 1.6579477310180664, 1.138422155380249, 1.140928530693054, 1.210385251045227]
     direx_runtime = [1.8335903406143188, 1.7716833353042603, 1.8989869435628255, 1.876910098393758, 1.9401285171508789, 1.967039171854655, 1.9942612012227376, 2.0535037597020467]
     htex_runtime = [208.69511485099792, 104.06894159317017, 52.18400287628174, 26.351411819458008, 13.301186561584473, 6.86055326461792, 3.694573163986206, 2.37636137008667]
@@ -208,6 +210,153 @@ def cdfkdirex_vs_all():
     f.suptitle("Throughput of CDFK DIREX compared")
     f.savefig("cdfkdirex_vs_all.png")
 
+def granularity_cdfkdirex():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+
+    cdfkdirex_0us = [0.9177794694900513,0.7923081636428833,0.7211169958114624,0.7381311416625976,0.7386274337768555,0.7844016313552856,0.8391645669937133,0.8448013305664063]
+    #cdfkdirex_1us = [1.357242226600647,1.0301915645599364,1.0291496753692626,1.0768460035324097,1.0442428827285766,1.0092048645019531,1.093170166015625,1.1154373407363891]
+    cdfkdirex_10us = [1.3478311061859132,1.0775153636932373,1.0252056121826172,0.995430302619934,1.0023422241210938,1.0190495252609253,1.0475459575653077,1.1753670215606689]
+    #cdfkdirex_100us = [1.7466087818145752,1.158806276321411,1.0471296072006226,1.0524781227111817,1.0551241874694823,0.9883117914199829,1.0413472652435303,1.128321933746338]
+    cdfkdirex_1000us = [6.452832150459289,3.4647338151931764,1.9567080736160278,1.2389769554138184,1.2489487171173095,1.2544309854507447,1.3316146373748778,1.3756155490875244]
+    cdfkdirex_10000us = [52.65145857334137,26.376111912727357,13.331113481521607,6.881415319442749,6.874750781059265,6.909321284294128,6.9791099548339846,6.959597420692444]
+
+    cdfkdirex_tot = cdfkdirex_0us + cdfkdirex_10us + cdfkdirex_1000us + cdfkdirex_10000us
+
+    cdfkdirex_throughput = [10000 / t for t in cdfkdirex_tot]
+    cdfkdirex_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
+    nworkers=4*[1,2,4,8,16,32,64,128]
+    df = pd.DataFrame({"Throughput": cdfkdirex_throughput, "Workers": nworkers, "Granularity": cdfkdirex_gran})
+    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+
+    ax.set_xscale(LogScale(1, base=2))
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_xticks(nworkers)
+    ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192], fontsize=9834)
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    #plt.tick_params(axis='both', which='major', labelsize=14)
+    #plt.legend(title='Company', fontsize=20)
+    #plt.xlabel('Date', fontsize=16);
+    #plt.ylabel('Sales', fontsize=16);
+    #plt.title('Sales Data', fontsize=20)
+
+    f.suptitle("Throughput of CDFK DIREX Granularity")
+    f.savefig("cdfkdirex_granularity.png")
+
+def granularity_pdfkhtex():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    pdfkhtex_0us = [208.56073191165925,104.15164544582368,52.234071254730225,26.408666682243346,13.421913957595825,6.915656852722168, 3.7138410568237306, 2.0781458139419557]
+    pdfkhtex_10us = [207.95815584659576,104.0417453289032,52.20868666172028,26.371598625183104,13.435020303726196,6.920794987678528,3.722451400756836,2.08894145488739]
+    pdfkhtex_1000us = [208.93325073719024,104.5724549293518,52.44926130771637,26.460202550888063,13.460071396827697,6.91746289730072,3.7199410438537597,2.085188293457031]
+    pdfkhtex_10000us = [209.156539273262,115.5913720369339,70.67908318042755,41.716539072990415,21.653223848342897,10.853071260452271,5.676747894287109,3.1015659093856813]
+    pdfkhtex_tot = pdfkhtex_0us + pdfkhtex_10us + pdfkhtex_1000us + pdfkhtex_10000us
+    pdfkhtex_throughput = [10000 / t for t in pdfkhtex_tot]
+    pdfkhtex_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
+    nworkers=4*[1,2,4,8,16,32,64,128]
+    df = pd.DataFrame({"Throughput": pdfkhtex_throughput, "Workers": nworkers, "Granularity": pdfkhtex_gran})
+    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+
+    ax.set_xscale(LogScale(1, base=2))
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_xticks(nworkers)
+    ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    #plt.tick_params(axis='both', which='major', labelsize=14)
+    #plt.legend(title='Company', fontsize=20)
+    #plt.xlabel('Date', fontsize=16);
+    #plt.ylabel('Sales', fontsize=16);
+    #plt.title('Sales Data', fontsize=20)
+
+    f.suptitle("Throughput of Python DFK HTEX Granularity")
+    f.savefig("pdfkhtex_granularity.png")
+
+def granularity_dask():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    dask_0us = [14.426973226107657,14.804283958580346,15.93439830718562,16.941377475298943,20.631867305841297]
+    dask_10us = [14.737046020850538,14.952529602963477,15.723000893276184,17.05282292049378,20.74066207744181]
+    dask_1000us = [14.46156904976815,14.890361172612756,15.635207520239055,16.917600916232914,20.17057673074305]
+    dask_10000us = [14.618960776180028,14.94802405629307,16.089843920152635,16.978489735815675,20.287164131738244]
+
+    dask_tot = dask_0us + dask_10us + dask_1000us + dask_10000us
+    dask_throughput = [10000 / t for t in dask_tot]
+    dask_gran = 5*["0us"] + 5*["10us"] + 5*["1ms"] + 5*["10ms"]
+    nworkers=4*[1,2,4,8,16]
+    df = pd.DataFrame({"Throughput": dask_throughput, "Workers": nworkers, "Granularity": dask_gran})
+    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+
+    ax.set_xscale(LogScale(1, base=2))
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_xticks(nworkers)
+    # ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    f.suptitle"Throughput of Dask at different Granularities")
+    f.savefig("dask_granularity.png")
+
+def granularity_ray():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    ray_0us = [5.430666340980679,2.9773381864652038,1.5158570311032236,1.3555972293019294,1.322595653682947,1.3797629032284022,1.3706705102697014,1.375115935690701]
+    ray_10us = [6.220524882432073,3.3465378382243216,1.6843417956493796,1.3774099230766297,1.3353450790047645,1.3294007359072566,1.364827434718609,1.334254747722298]
+    ray_1000us = [20.40687863016501,10.239490812271834,5.1341957651078705,2.4855086233466865,1.4247257123701274,1.344102220516652,1.380251538939774,1.3954690925776958]
+    ray_10000us = [113.53895511645824,56.83142975699157,28.581554535962642,14.401022431068123,7.273174765426665,3.6846698691137134,1.9250256136991084,1.3559844645671546]
+
+    ray_tot = ray_0us + ray_10us + ray_1000us + ray_10000us
+    ray_throughput = [10000 / t for t in ray_tot]
+    ray_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
+    nworkers=4*[1,2,4,8,16]
+    df = pd.DataFrame({"Throughput": ray_throughput, "Workers": nworkers, "Granularity": ray_gran})
+    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+
+    ax.set_xscale(LogScale(1, base=2))
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_xticks(nworkers)
+    ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    f.suptitle"Throughput of Dask at different Granularities")
+    f.savefig("ray_granularity.png")
+
+def dfk_submit():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    runtime = [1475.3859, 1276.6666, 11250.5704, 1856.0599, 3799.3106, 2803.4114, 7644.1589, 24585.0347, 2675.361, 1286.1205, 2980.8965, 1148.6048, 2587.0421, 1515.1941, 2844.3188, 5700.1494, 1527.8517, 1167.9203, 70757.0171]
+    tot = sum(runtime)
+    runtime = [r /  tot for r in runtime]
+    label = ["check cleanup", "create id", "pick executor", "get label", "create task", "update task state", "create app future", "remote files -> data futures", "update task record", "add task record to DAG", "gather dependencies", "add deps to task", "check dependency stats", "create task launch lock", "create done callback", "update task state", "monitoring", "done callback deps", "invoke launch if ready"]
+    df = pd.DataFrame({"Runtime(%)": runtime, "Code Block": label})
+    sns.barplot(df, x="Code Block", y="Runtime(%)", ax=ax, width=.4, errorbar=None)
+    ax.tick_params(axis='x', rotation=-30)
+    f.suptitle("DFK Submit function")
+    f.savefig("dfk_submit.png")
+
+def dfk_lir():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    runtime = [1089.2303,1205.5562,1771.5325,1419.0092,3165.9544,14077.818,4605.2466]
+    tot = sum(runtime)
+    runtime = [r / tot for r in runtime]
+    label = ["get task id", "aquire launch lock", "check status pending", "check dependency count", "unwrap futures", "invoke launch", "ensure exec_fu is Future"]
+
+    df = pd.DataFrame({"Runtime(%)": runtime, "Code Block": label})
+    sns.barplot(df, x="Code Block", y="Runtime(%)", ax=ax, width=.4)
+    ax.tick_params(axis='x', rotation=-30)
+    f.suptitle("DFK Launch If Ready")
+    f.savefig("dfk_lir.png")
+
+def dfk_lau():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    runtime = [2095.6618,2758.8234,1226.6556,1170.9044+1459.0191]
+    tot = sum(runtime)
+    runtime = [r / tot for r in runtime]
+    label = ["get func and args", "check memoizer", "get executor", "monitoring"]
+    df = pd.DataFrame({"Runtime(%)": runtime, "Code Block": label})
+    sns.barplot(df, x="Code Block", y="Runtime(%)", ax=ax, width=.4)
+    ax.tick_params(axis='x', rotation=-30)
+    f.suptitle("DFK Launch")
+    f.savefig("dfk_lau.png")
 
 #f = open("dfkbench.txt", "r")
 #batch = [i+1 for i in range(500)]
@@ -231,7 +380,12 @@ def cdfkdirex_vs_all():
 #cdfk_vs_pdfk_objcount()
 #gc_vs_nogc_throughput()
 #singleq_vs_multiq()
-cdfkdirex_vs_all()
+#cdfkdirex_vs_all()
+#granularity_cdfkdirex()
+#granularity_pdfkhtex()
+#dfk_submit()
+#dfk_lir()
+#dfk_lau()
 #pandanite()
 #pbft()
 #mfmc()
