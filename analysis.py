@@ -10,6 +10,8 @@ from matplotlib.scale import LogScale
 sns.set_theme(style="whitegrid")
 figsize=(12.8,6.4)
 
+GRANULARITY_YLABEL = "Throughput(tasks/second)"
+
 def pandanite():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
 
@@ -213,20 +215,20 @@ def cdfkdirex_vs_all():
 def granularity_cdfkdirex():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
 
-    cdfkdirex_0us = [0.9177794694900513,0.7923081636428833,0.7211169958114624,0.7381311416625976,0.7386274337768555,0.7844016313552856,0.8391645669937133,0.8448013305664063]
+    cdfkdirex_0us = [1.5317886590957641,1.1461533546447753,1.0257321119308471,1.0085374593734742,1.065446376800537,1.0874726533889771,1.1242356300354004,1.1761406898498534]
     #cdfkdirex_1us = [1.357242226600647,1.0301915645599364,1.0291496753692626,1.0768460035324097,1.0442428827285766,1.0092048645019531,1.093170166015625,1.1154373407363891]
-    cdfkdirex_10us = [1.3478311061859132,1.0775153636932373,1.0252056121826172,0.995430302619934,1.0023422241210938,1.0190495252609253,1.0475459575653077,1.1753670215606689]
+    cdfkdirex_10us = [2.2140042781829834,1.3623889207839965,1.0318618059158324,1.0525174617767334,1.1366793155670165,1.1619214296340943,1.2294798612594604,1.2394426822662354]
     #cdfkdirex_100us = [1.7466087818145752,1.158806276321411,1.0471296072006226,1.0524781227111817,1.0551241874694823,0.9883117914199829,1.0413472652435303,1.128321933746338]
-    cdfkdirex_1000us = [6.452832150459289,3.4647338151931764,1.9567080736160278,1.2389769554138184,1.2489487171173095,1.2544309854507447,1.3316146373748778,1.3756155490875244]
-    cdfkdirex_10000us = [52.65145857334137,26.376111912727357,13.331113481521607,6.881415319442749,6.874750781059265,6.909321284294128,6.9791099548339846,6.959597420692444]
+    cdfkdirex_1000us = [12.359384560585022,6.375921702384948,3.42776300907135,1.9504756450653076,1.9993041276931762,2.0269531488418577,2.0802396535873413,2.0948133945465086]
+    cdfkdirex_10000us = [103.71087141036988,51.8652984380722,26.116928601264952,13.285402727127074,13.299086117744446,13.311230850219726,13.331144523620605,13.36794536113739]
 
     cdfkdirex_tot = cdfkdirex_0us + cdfkdirex_10us + cdfkdirex_1000us + cdfkdirex_10000us
 
     cdfkdirex_throughput = [10000 / t for t in cdfkdirex_tot]
     cdfkdirex_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
     nworkers=4*[1,2,4,8,16,32,64,128]
-    df = pd.DataFrame({"Throughput": cdfkdirex_throughput, "Workers": nworkers, "Granularity": cdfkdirex_gran})
-    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+    df = pd.DataFrame({GRANULARITY_YLABEL: cdfkdirex_throughput, "Workers": nworkers, "Granularity": cdfkdirex_gran})
+    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -241,8 +243,8 @@ def granularity_cdfkdirex():
     #plt.ylabel('Sales', fontsize=16);
     #plt.title('Sales Data', fontsize=20)
 
-    f.suptitle("Throughput of CDFK DIREX Granularity")
-    f.savefig("cdfkdirex_granularity.png")
+    f.suptitle("Throughput of CDFK DIREX at Different Granularities")
+    f.savefig("granularity_cdfkdirex.png")
 
 def granularity_pdfkhtex():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
@@ -254,8 +256,8 @@ def granularity_pdfkhtex():
     pdfkhtex_throughput = [10000 / t for t in pdfkhtex_tot]
     pdfkhtex_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
     nworkers=4*[1,2,4,8,16,32,64,128]
-    df = pd.DataFrame({"Throughput": pdfkhtex_throughput, "Workers": nworkers, "Granularity": pdfkhtex_gran})
-    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+    df = pd.DataFrame({GRANULARITY_YLABEL: pdfkhtex_throughput, "Workers": nworkers, "Granularity": pdfkhtex_gran})
+    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -270,22 +272,22 @@ def granularity_pdfkhtex():
     #plt.ylabel('Sales', fontsize=16);
     #plt.title('Sales Data', fontsize=20)
 
-    f.suptitle("Throughput of Python DFK HTEX Granularity")
-    f.savefig("pdfkhtex_granularity.png")
+    f.suptitle("Throughput of Python DFK HTEX at Different Granularities")
+    f.savefig("granularity_pdfkhtex.png")
 
 def granularity_dask():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-    dask_0us = [14.426973226107657,14.804283958580346,15.93439830718562,16.941377475298943,20.631867305841297]
-    dask_10us = [14.737046020850538,14.952529602963477,15.723000893276184,17.05282292049378,20.74066207744181]
-    dask_1000us = [14.46156904976815,14.890361172612756,15.635207520239055,16.917600916232914,20.17057673074305]
-    dask_10000us = [14.618960776180028,14.94802405629307,16.089843920152635,16.978489735815675,20.287164131738244]
+    dask_0us = [14.426973226107657,14.804283958580346,15.93439830718562,16.941377475298943,20.631867305841297, 35.54196242783219, 336.97042947039006]
+    dask_10us = [14.737046020850538,14.952529602963477,15.723000893276184,17.05282292049378,20.74066207744181, 34.797179472260176, 361.94480409044775]
+    dask_1000us = [14.46156904976815,14.890361172612756,15.635207520239055,16.917600916232914,20.17057673074305, 34.49043252468109,349.6363507889211]
+    dask_10000us = [14.618960776180028,14.94802405629307,16.089843920152635,16.978489735815675,20.287164131738244, 35.151617508381605, 341.30363035816697]
 
     dask_tot = dask_0us + dask_10us + dask_1000us + dask_10000us
     dask_throughput = [10000 / t for t in dask_tot]
-    dask_gran = 5*["0us"] + 5*["10us"] + 5*["1ms"] + 5*["10ms"]
-    nworkers=4*[1,2,4,8,16]
-    df = pd.DataFrame({"Throughput": dask_throughput, "Workers": nworkers, "Granularity": dask_gran})
-    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+    dask_gran = 7*["0us"] + 7*["10us"] + 7*["1ms"] + 7*["10ms"]
+    nworkers=4*[1,2,4,8,16,32,64]
+    df = pd.DataFrame({GRANULARITY_YLABEL: dask_throughput, "Workers": nworkers, "Granularity": dask_gran})
+    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -294,8 +296,8 @@ def granularity_dask():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    f.suptitle"Throughput of Dask at different Granularities")
-    f.savefig("dask_granularity.png")
+    f.suptitle("Throughput of Dask at different Granularities")
+    f.savefig("granularity_dask.png")
 
 def granularity_ray():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
@@ -307,9 +309,9 @@ def granularity_ray():
     ray_tot = ray_0us + ray_10us + ray_1000us + ray_10000us
     ray_throughput = [10000 / t for t in ray_tot]
     ray_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
-    nworkers=4*[1,2,4,8,16]
-    df = pd.DataFrame({"Throughput": ray_throughput, "Workers": nworkers, "Granularity": ray_gran})
-    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Granularity", marker="o", ax=ax)
+    nworkers=4*[1,2,4,8,16,32,64,128]
+    df = pd.DataFrame({GRANULARITY_YLABEL: ray_throughput, "Workers": nworkers, "Granularity": ray_gran})
+    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -318,8 +320,8 @@ def granularity_ray():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    f.suptitle"Throughput of Dask at different Granularities")
-    f.savefig("ray_granularity.png")
+    f.suptitle("Throughput of Ray at different Granularities")
+    f.savefig("granularity_ray.png")
 
 def dfk_submit():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
@@ -381,8 +383,10 @@ def dfk_lau():
 #gc_vs_nogc_throughput()
 #singleq_vs_multiq()
 #cdfkdirex_vs_all()
-#granularity_cdfkdirex()
-#granularity_pdfkhtex()
+granularity_cdfkdirex()
+granularity_pdfkhtex()
+granularity_dask()
+granularity_ray()
 #dfk_submit()
 #dfk_lir()
 #dfk_lau()
