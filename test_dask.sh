@@ -1,5 +1,5 @@
 #!/bin/bash
-for w in 32 64 128
+for w in 1 2 4 8 16 32 64 128
 do
 	for d  in 0 10 1000 10000
 	do
