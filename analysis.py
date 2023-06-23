@@ -10,8 +10,24 @@ from matplotlib.scale import LogScale
 sns.set_theme(style="whitegrid")
 figsize=(12.8,6.4)
 
-GRANULARITY_YLABEL = "Throughput(tasks/second)"
+THROUGHPUT_YLABEL = "Throughput(tasks/second)"
 
+def change_font(axes, title, fontsize):
+    for tick in axes.xaxis.get_major_ticks():
+        tick.label1.set_fontsize(fontsize-5)
+
+    for tick in axes.yaxis.get_major_ticks():
+        tick.label1.set_fontsize(fontsize-5)
+
+    xlabel = axes.xaxis.get_label()
+    ylabel = axes.yaxis.get_label()
+
+    xlabel.set_fontsize(fontsize)
+    ylabel.set_fontsize(fontsize)
+    axes.set_title(title, fontsize=fontsize)
+    axes.legend(prop=dict(size=fontsize))
+
+"""
 def pandanite():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
 
@@ -38,15 +54,15 @@ def mfmc():
     ax.set_title("Runtime of Optimal Assignment")
     ax.set_yscale(LogScale(1, base=10))
     f.savefig("logmfmc.png")
-
+"""
 
 def nologgingthroughput():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
     runtime = [2082.822674036026, 1038.7380170822144, 519.6603798866272, 260.74488377571106, 131.58347415924072, 66.48571419715881, 36.817787170410156, 26.448672771453857]
     throughput = [100000 / t for t in runtime]
     nworkers=[1, 2, 4, 8, 16, 32, 64, 128]
-    df = pd.DataFrame({"Throughput(tasks/second)": throughput, "Number of Workers": nworkers})
-    sns.lineplot(df, x="Number of Workers", y="Throughput(tasks/second)", marker="o")
+    df = pd.DataFrame({THROUGHPUT_YLABEL: throughput, "Number of Workers": nworkers})
+    sns.lineplot(df, x="Number of Workers", y=THROUGHPUT_YLABEL, marker="o")
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
     f.suptitle("Parsl no-op throughput with logging off")
@@ -59,8 +75,8 @@ def nologging_direct_vs_htex():
     nworkers=[1, 2, 4, 8, 16, 32, 64, 128]
     dthroughput = [10000 / t for t in druntime]
     hthroughput = [10000 / t for t in hruntime]
-    df = pd.DataFrame({"Throughput": dthroughput + hthroughput, "Workers": nworkers + nworkers, "Executor": 8 * ["DIREX"] + 8 *["HTEX"]})
-    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Executor", marker="o", ax=ax)
+    df = pd.DataFrame({THROUGHPUT_YLABEL: dthroughput + hthroughput, "Workers": nworkers + nworkers, "Executor": 8 * ["DIREX"] + 8 *["HTEX"]})
+    sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Executor", marker="o", ax=ax)
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
     ax.set_xticks(nworkers)
@@ -68,7 +84,8 @@ def nologging_direct_vs_htex():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    f.suptitle("Direct to Worker vs HTEX")
+    # f.suptitle("Direct to Worker vs HTEX")
+    change_font(ax, "Direct to Worker vs HTEX", fontsize=20)
     f.savefig("nolog_direct_vs_htex.png")
 
 def nologging_cdfkthroughput():
@@ -87,7 +104,8 @@ def nologging_cdfkthroughput():
     ax.set_yticks([64, 128, 256, 512, 1024, 2048, 4096, 8192])
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    f.suptitle("Python DFK vs C DFK")
+    # f.suptitle("Python DFK vs C DFK")
+    change_font(ax, "Python DFK vs C DFK", fontsize=20)
     f.savefig("nolog_pdfk_vs_cdfk.png")
 
 def direct_vs_htex():
@@ -117,9 +135,8 @@ def tagging():
     df = pd.DataFrame({"Time(microseconds)": time, "Component": component})
     
     sns.barplot(data=df, x="Component", y="Time(microseconds)", ax=ax)
-    ax.set_title("Time spent in each component")
     ax.set_yscale("log")
-    
+    change_font(ax, "Time spent in each component", fontsize=20)
     f.savefig("tagging.png")
 
 def interchange_tagging():
@@ -132,8 +149,9 @@ def interchange_tagging():
     
     df = pd.DataFrame({"Time(microseconds)": time, "Component": component})
     sns.barplot(data=df, x="Component", y="Time(microseconds)", ax=ax, width=.4)
-    ax.set_title("Time spent within the Interchange")
     ax.set_yscale("log")
+    # ax.set_title("Time spent within the Interchange")
+    change_font(ax, "Time spent within the Interchange", fontsize=20)
     f.savefig("interchange_tagging.png")
 
 def print_direct_to_worker_txt():
@@ -155,10 +173,11 @@ def cdfk_vs_pdfk_objcount():
     sns.lineplot(data=df, x="Number of Tasks", y="C DFK", marker="o", ax=ax)
     sns.lineplot(data=df, x="Number of Tasks", y="Python DFK", marker="o", ax=ax)
 
-    ax.set_title("Memory footprint C DFK vs Python DFK")
     ax.set_ylabel("Number of Python Objects")
     ax.set_yscale("log")
     ax.set_xscale("log")
+    # ax.set_title("Memory footprint C DFK vs Python DFK")
+    change_font(ax, "Memory footprint C DFK vs Python DFK", fontsize=20)
     f.savefig("objcount_cdfkvpdfk.png")
 
 def gc_vs_nogc_throughput():
@@ -169,6 +188,9 @@ def gc_vs_nogc_throughput():
     havegc = 3 * ["yes"] + 3 * ["no"]
     df = pd.DataFrame({"Number of Tasks": numtasks, "Throughput": gc + nogc, "GC Enabled": havegc})
     sns.barplot(df, x="Number of Tasks", y="Throughput", hue="GC Enabled", width=.4,ax=ax)
+    # ax.set_title("Throughput with and without Garbage Collect")
+
+    change_font(ax, "Throughput with and without Garbage Collector", fontsize=20)
     f.savefig("gcvnogc_throughput.png")
 
 def singleq_vs_multiq():
@@ -184,6 +206,8 @@ def singleq_vs_multiq():
     ax.set_xscale(LogScale(1, base=2))
     ax.set_xticks(nworkers)
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    
+    change_font(ax, "Single Queue vs Muli-Queue Throughput", fontsize=20)
     f.savefig("sqvmq_throughput.png")
 
 
@@ -209,7 +233,9 @@ def cdfkdirex_vs_all():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    f.suptitle("Throughput of CDFK DIREX compared")
+    # f.suptitle("Throughput of CDFK DIREX compared")
+
+    change_font(ax, "Throughput of CDFK DIREX compared", fontsize=20)
     f.savefig("cdfkdirex_vs_all.png")
 
 def granularity_cdfkdirex():
@@ -227,23 +253,18 @@ def granularity_cdfkdirex():
     cdfkdirex_throughput = [10000 / t for t in cdfkdirex_tot]
     cdfkdirex_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
     nworkers=4*[1,2,4,8,16,32,64,128]
-    df = pd.DataFrame({GRANULARITY_YLABEL: cdfkdirex_throughput, "Workers": nworkers, "Granularity": cdfkdirex_gran})
-    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
+    df = pd.DataFrame({THROUGHPUT_YLABEL: cdfkdirex_throughput, "Workers": nworkers, "Granularity": cdfkdirex_gran})
+    sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
     ax.set_xticks(nworkers)
-    ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192], fontsize=9834)
+    ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    #plt.tick_params(axis='both', which='major', labelsize=14)
-    #plt.legend(title='Company', fontsize=20)
-    #plt.xlabel('Date', fontsize=16);
-    #plt.ylabel('Sales', fontsize=16);
-    #plt.title('Sales Data', fontsize=20)
-
-    f.suptitle("Throughput of CDFK DIREX at Different Granularities")
+    # f.suptitle("Throughput of CDFK DIREX at Different Granularities")
+    change_font(ax, "Throughput of CDFK DIREX at Different Granularities", fontsize=20)
     f.savefig("granularity_cdfkdirex.png")
 
 def granularity_pdfkhtex():
@@ -256,8 +277,8 @@ def granularity_pdfkhtex():
     pdfkhtex_throughput = [10000 / t for t in pdfkhtex_tot]
     pdfkhtex_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
     nworkers=4*[1,2,4,8,16,32,64,128]
-    df = pd.DataFrame({GRANULARITY_YLABEL: pdfkhtex_throughput, "Workers": nworkers, "Granularity": pdfkhtex_gran})
-    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
+    df = pd.DataFrame({THROUGHPUT_YLABEL: pdfkhtex_throughput, "Workers": nworkers, "Granularity": pdfkhtex_gran})
+    sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -266,13 +287,8 @@ def granularity_pdfkhtex():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    #plt.tick_params(axis='both', which='major', labelsize=14)
-    #plt.legend(title='Company', fontsize=20)
-    #plt.xlabel('Date', fontsize=16);
-    #plt.ylabel('Sales', fontsize=16);
-    #plt.title('Sales Data', fontsize=20)
-
-    f.suptitle("Throughput of Python DFK HTEX at Different Granularities")
+    # f.suptitle("Throughput of Python DFK HTEX at Different Granularities")
+    change_font(ax, "Throughput of Python DFK HTEX at Different Granularities", fontsize=20)
     f.savefig("granularity_pdfkhtex.png")
 
 def granularity_dask():
@@ -286,8 +302,8 @@ def granularity_dask():
     dask_throughput = [10000 / t for t in dask_tot]
     dask_gran = 7*["0us"] + 7*["10us"] + 7*["1ms"] + 7*["10ms"]
     nworkers=4*[1,2,4,8,16,32,64]
-    df = pd.DataFrame({GRANULARITY_YLABEL: dask_throughput, "Workers": nworkers, "Granularity": dask_gran})
-    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
+    df = pd.DataFrame({THROUGHPUT_YLABEL: dask_throughput, "Workers": nworkers, "Granularity": dask_gran})
+    sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -296,7 +312,8 @@ def granularity_dask():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    f.suptitle("Throughput of Dask at different Granularities")
+    # f.suptitle("Throughput of Dask at different Granularities")
+    change_font(ax, "Throughput of Dask at Different Granularities", fontsize=20)
     f.savefig("granularity_dask.png")
 
 def granularity_ray():
@@ -310,8 +327,8 @@ def granularity_ray():
     ray_throughput = [10000 / t for t in ray_tot]
     ray_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
     nworkers=4*[1,2,4,8,16,32,64,128]
-    df = pd.DataFrame({GRANULARITY_YLABEL: ray_throughput, "Workers": nworkers, "Granularity": ray_gran})
-    sns.lineplot(data=df, x="Workers", y=GRANULARITY_YLABEL, hue="Granularity", marker="o", ax=ax)
+    df = pd.DataFrame({THROUGHPUT_YLABEL: ray_throughput, "Workers": nworkers, "Granularity": ray_gran})
+    sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Granularity", marker="o", ax=ax)
 
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
@@ -320,7 +337,8 @@ def granularity_ray():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    f.suptitle("Throughput of Ray at different Granularities")
+    # f.suptitle("Throughput of Ray at different Granularities")
+    change_font(ax, "Throughput of Ray at Different Granularities", fontsize=20)
     f.savefig("granularity_ray.png")
 
 def dfk_submit():
@@ -332,7 +350,9 @@ def dfk_submit():
     df = pd.DataFrame({"Runtime(%)": runtime, "Code Block": label})
     sns.barplot(df, x="Code Block", y="Runtime(%)", ax=ax, width=.4, errorbar=None)
     ax.tick_params(axis='x', rotation=-30)
-    f.suptitle("DFK Submit function")
+    # f.suptitle("DFK Submit function")
+
+    change_font(ax, "DFK Submit Function", fontsize=20)
     f.savefig("dfk_submit.png")
 
 def dfk_lir():
@@ -345,7 +365,9 @@ def dfk_lir():
     df = pd.DataFrame({"Runtime(%)": runtime, "Code Block": label})
     sns.barplot(df, x="Code Block", y="Runtime(%)", ax=ax, width=.4)
     ax.tick_params(axis='x', rotation=-30)
-    f.suptitle("DFK Launch If Ready")
+    # f.suptitle("DFK Launch If Ready")
+
+    change_font(ax, "DFK Launch If Ready Function", fontsize=20)
     f.savefig("dfk_lir.png")
 
 def dfk_lau():
@@ -357,7 +379,9 @@ def dfk_lau():
     df = pd.DataFrame({"Runtime(%)": runtime, "Code Block": label})
     sns.barplot(df, x="Code Block", y="Runtime(%)", ax=ax, width=.4)
     ax.tick_params(axis='x', rotation=-30)
-    f.suptitle("DFK Launch")
+    #f.suptitle("DFK Launch")
+
+    change_font(ax, "DFK Launch Function", fontsize=20)
     f.savefig("dfk_lau.png")
 
 #f = open("dfkbench.txt", "r")
@@ -374,22 +398,22 @@ def dfk_lau():
 #f2.suptitle("DFK Throughput no-op 500k")
 #f1.savefig("dfkbench_line.png")
 #f2.savefig("dfkbench_hist.png")
-#tagging()
-#interchange_tagging()
+tagging()
+interchange_tagging()
 #nologgingthroughput()
-#nologging_direct_vs_htex()
-#nologging_cdfkthroughput()
-#cdfk_vs_pdfk_objcount()
-#gc_vs_nogc_throughput()
-#singleq_vs_multiq()
-#cdfkdirex_vs_all()
+nologging_direct_vs_htex()
+nologging_cdfkthroughput()
+cdfk_vs_pdfk_objcount()
+gc_vs_nogc_throughput()
+singleq_vs_multiq()
+cdfkdirex_vs_all()
 granularity_cdfkdirex()
 granularity_pdfkhtex()
 granularity_dask()
 granularity_ray()
-#dfk_submit()
-#dfk_lir()
-#dfk_lau()
+dfk_submit()
+dfk_lir()
+dfk_lau()
 #pandanite()
 #pbft()
 #mfmc()
