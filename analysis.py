@@ -293,15 +293,14 @@ def granularity_pdfkhtex():
 
 def granularity_dask():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-    dask_0us = [14.426973226107657,14.804283958580346,15.93439830718562,16.941377475298943,20.631867305841297, 35.54196242783219, 336.97042947039006]
-    dask_10us = [14.737046020850538,14.952529602963477,15.723000893276184,17.05282292049378,20.74066207744181, 34.797179472260176, 361.94480409044775]
-    dask_1000us = [14.46156904976815,14.890361172612756,15.635207520239055,16.917600916232914,20.17057673074305, 34.49043252468109,349.6363507889211]
-    dask_10000us = [14.618960776180028,14.94802405629307,16.089843920152635,16.978489735815675,20.287164131738244, 35.151617508381605, 341.30363035816697]
-
+    dask_0us = [29.53185087770398,15.480700585691375,8.258053458703216,5.152660356592969,4.346021985498373,5.064179336500819,9.296009012300056,45.72336811890127]
+    dask_10us = [30.02078281409922,15.532390564802336,8.227846888205386,5.188785553703201,4.394784313900163,5.048121868399903,9.543887097397237,43.47842378669884]
+    dask_1000us = [35.87134775070008,16.898433726397343,8.69462291020027,5.710084404796362,4.501105657705921,5.345659045997309,9.482958284195046,43.470774537502436]
+    dask_10000us = [228.6374506703054,94.61450708560297,28.851210198696936,15.580414767999901,8.84547327249893,6.271609366402845,10.986490468599367,44.284311394297404]
     dask_tot = dask_0us + dask_10us + dask_1000us + dask_10000us
     dask_throughput = [10000 / t for t in dask_tot]
-    dask_gran = 7*["0us"] + 7*["10us"] + 7*["1ms"] + 7*["10ms"]
-    nworkers=4*[1,2,4,8,16,32,64]
+    dask_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
+    nworkers=4*[1,2,4,8,16,32,64,128]
     df = pd.DataFrame({THROUGHPUT_YLABEL: dask_throughput, "Workers": nworkers, "Granularity": dask_gran})
     sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Granularity", marker="o", ax=ax)
 
@@ -398,22 +397,22 @@ def dfk_lau():
 #f2.suptitle("DFK Throughput no-op 500k")
 #f1.savefig("dfkbench_line.png")
 #f2.savefig("dfkbench_hist.png")
-tagging()
-interchange_tagging()
+#tagging()
+#interchange_tagging()
 #nologgingthroughput()
-nologging_direct_vs_htex()
-nologging_cdfkthroughput()
-cdfk_vs_pdfk_objcount()
-gc_vs_nogc_throughput()
-singleq_vs_multiq()
-cdfkdirex_vs_all()
-granularity_cdfkdirex()
-granularity_pdfkhtex()
+#nologging_direct_vs_htex()
+#nologging_cdfkthroughput()
+#cdfk_vs_pdfk_objcount()
+#gc_vs_nogc_throughput()
+#singleq_vs_multiq()
+#cdfkdirex_vs_all()
+#granularity_cdfkdirex()
+#granularity_pdfkhtex()
 granularity_dask()
-granularity_ray()
-dfk_submit()
-dfk_lir()
-dfk_lau()
+#granularity_ray()
+#dfk_submit()
+#dfk_lir()
+#dfk_lau()
 #pandanite()
 #pbft()
 #mfmc()
