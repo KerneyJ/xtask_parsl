@@ -135,26 +135,38 @@ if __name__ == '__main__':
 
     elif args.executor =="htexr": # htex remote
         from parsl.executors import HighThroughputExecutor
-        from parsl.providers import AdHocProvider, LocalProvider
+        from parsl.providers import AdHocProvider
         from parsl.channels import SSHChannel
+
+        nodes = [
+            "64.131.114.145",
+            "64.131.114.146",
+            "64.131.114.147",
+            "64.131.114.148",
+            "64.131.114.151",
+            "64.131.114.152",
+            "64.131.114.153",
+            "64.131.114.154",
+        ]
         executor = HighThroughputExecutor(
             cores_per_worker=1,
             label=f"htexm_{args.blocks}b_{args.workers}w",
             worker_debug=False,
             max_workers=args.workers,
-            provider=LocalProvider(
-                init_blocks=int(args.blocks),
-                max_blocks=int(args.blocks),
-                min_blocks=int(args.blocks),
-                nodes_per_block=1,
-                channel=SSHChannel(
-                    hostname="64.131.114.141",
-                    username="jamie",
-                    key_filename="/home/jamie/.ssh/id_rsa",
-                    script_dir="/mnt/lustre/script_dir",
+            provider=AdHocProvider(
+                #init_blocks=int(args.blocks),
+                #max_blocks=int(args.blocks),
+                #min_blocks=int(args.blocks),
+                #nodes_per_block=1,
+                channels=[
+                    SSHChannel(
+                        hostname=node,
+                        username="jamie",
+                        key_filename="/home/jamie/.ssh/id_rsa",
+                        script_dir="/mnt/lustre/script_dir",
+                    ) for node in nodes]
                 ),
             )
-        )
 
     parsl.load(Config(
             executors=[executor],
