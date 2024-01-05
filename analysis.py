@@ -6,8 +6,10 @@ import seaborn as sns
 
 from matplotlib.scale import LogScale
 
+sns.color_palette("hls", 8)
 # sns.set(font_scale=5)
 sns.set_theme(style="whitegrid")
+sns.color_palette("hls", 8)
 figsize=(12.8,6.4)
 
 THROUGHPUT_YLABEL = "Throughput(tasks/second)"
@@ -296,7 +298,7 @@ def granularity_dask():
     dask_0us = [29.53185087770398,15.480700585691375,8.258053458703216,5.152660356592969,4.346021985498373,5.064179336500819,9.296009012300056,45.72336811890127]
     dask_10us = [30.02078281409922,15.532390564802336,8.227846888205386,5.188785553703201,4.394784313900163,5.048121868399903,9.543887097397237,43.47842378669884]
     dask_1000us = [35.87134775070008,16.898433726397343,8.69462291020027,5.710084404796362,4.501105657705921,5.345659045997309,9.482958284195046,43.470774537502436]
-    dask_10000us = [228.6374506703054,94.61450708560297,28.851210198696936,15.580414767999901,8.84547327249893,6.271609366402845,10.986490468599367,44.284311394297404]
+    qdask_10000us = [228.6374506703054,94.61450708560297,28.851210198696936,15.580414767999901,8.84547327249893,6.271609366402845,10.986490468599367,44.284311394297404]
     dask_tot = dask_0us + dask_10us + dask_1000us + dask_10000us
     dask_throughput = [10000 / t for t in dask_tot]
     dask_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
@@ -383,6 +385,67 @@ def dfk_lau():
     change_font(ax, "DFK Launch Function", fontsize=20)
     f.savefig("dfk_lau.png")
 
+
+def smiknn_cdfk():
+    sns.color_palette("hls", 8)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    runtime1kb = [1.3731940031051635,1.4861858367919922,1.8912609577178956,2.9374542951583864,5.234819602966309,9.829994821548462,17.870266795158386, 34.35889132022858]
+    runtime1hb = [3.0020461082458496,3.589237642288208,4.709066677093506,7.452650642395019,12.811346077919007,24.993502283096312,49.22772607803345, 98.6276061296463]
+    runtime10b = [29.144734621047974,29.995630931854247,31.044559264183043,38.37913780212402,57.140538811683655,95.18248608112336,177.26502811908722, 348.85890247821806]
+    runtime = runtime1kb + runtime1hb + runtime10b
+    nworkers=3*[128,64,32,16,8,4,2,1]
+    bsize = 8 *["1000 Batch Size"] + 8 * ["100 Batch Size"] + 8 * ["10 Batch Size"]
+    df = pd.DataFrame({"Runtime(s)": runtime, "Workers": nworkers, "Batch Size": bsize})
+    sns.lineplot(data=df, x="Workers", y="Runtime(s)", hue="Batch Size", marker="o", ax=ax)
+
+    ax.set_xscale(LogScale(1, base=2))
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_xticks(nworkers)
+    ax.set_yticks([1, 2, 4, 8, 16, 32, 64, 128, 256])
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_legend().set_title("Batch Size")
+    change_font(ax, "Parsl Dock Runtime CDFK DIREX", fontsize=20)
+    f.savefig("smiknn_cdfk.png")
+
+def smiknn_serial():
+    sns.color_palette("hls", 8)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    blocks = [10, 100, 1000]
+    runtime = [278.50316815376283,75.43989520072937, 36.34670898914337]
+    df = pd.DataFrame({"Batch Size": blocks, "Runtime(s)": runtime})
+    sns.barplot(df, x="Batch Size", y="Runtime(s)", ax=ax, width=.4, errorbar=None)
+    ax.tick_params(axis='x', rotation=-30)
+    # f.suptitle("DFK Submit function")
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_yticks([1, 2, 4, 8, 16, 32, 64, 128, 256])
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    change_font(ax, "Parsl Dock Runtime Serial", fontsize=17)
+    f.savefig("smiknn_serial.png")
+
+def smiknn_stdparsl():
+    sns.color_palette("hls", 8)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    runtime1kb = [85.91678261756897, 52.32095193862915, 28.867486000061035, 16.70747947692871, 11.025074243545532, 12.883922815322876, 18.67558479309082, 35.36358094215393]
+    runtime1hb = [111.31407427787781, 55.32581114768982, 31.289098739624023, 20.393805742263794, 18.803539276123047, 28.136523723602295, 48.0152530670166, 96.20473098754883]
+    runtime = runtime1kb + runtime1hb
+    nworkers = 2*[128,64,32,16,8,4,2,1]
+    bsize = 8 * ["1000 Batch Size"] + 8 * ["100 Batch Size"]
+
+    df = pd.DataFrame({"Runtime(s)": runtime, "Batch Size": bsize, "Workers": nworkers})
+    sns.lineplot(data=df, x="Workers", y="Runtime(s)", hue="Batch Size", marker="o", ax=ax)
+
+    ax.set_xscale(LogScale(1, base=2))
+    ax.set_yscale(LogScale(2, base=2))
+    ax.set_xticks(nworkers)
+    ax.set_yticks([1, 2, 4, 8, 16, 32, 64, 128, 256])
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax.get_legend().set_title("Batch Size")
+    change_font(ax, "Parsl Dock Runtime CDFK DIREX", fontsize=20)
+    f.savefig("smiknn_stdparsl.png")
+
 #f = open("dfkbench.txt", "r")
 #batch = [i+1 for i in range(500)]
 #throughput = [float(line) for line in f]
@@ -408,11 +471,14 @@ def dfk_lau():
 #cdfkdirex_vs_all()
 #granularity_cdfkdirex()
 #granularity_pdfkhtex()
-granularity_dask()
+#granularity_dask()
 #granularity_ray()
 #dfk_submit()
 #dfk_lir()
 #dfk_lau()
+smiknn_cdfk()
+smiknn_serial()
+smiknn_stdparsl()
 #pandanite()
 #pbft()
 #mfmc()
