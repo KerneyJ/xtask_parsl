@@ -76,11 +76,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
                     prog='func.py',
                     description='Test parsl with different workloads and numbers of workers')
-<<<<<<< HEAD
     parser.add_argument("executor", type=str, help="htex, htexr(htex remote), xq(if defined), or wq", choices=["htex", "xq", "wq", "htexr"])
-=======
-    parser.add_argument("executor", type=str, help="htex, xq(if defined), wq, or htexm", choices=["htex", "htexm", "xq", "wq"])
->>>>>>> 195048c80b466915aff741d5adb4c629bb2a89ef
     parser.add_argument("blocks", type=int, help="number of execution blocks")
     parser.add_argument("workers", type=int, help="number of workers per block")
     parser.add_argument("benchmark", type=str, help="fib(recursive), fibi(iterative), noop, nsums", choices=["fib", "fibi", "noop", "nsums"])
