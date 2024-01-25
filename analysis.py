@@ -12,7 +12,7 @@ sns.color_palette("hls", 8)
 # sns.set(font_scale=5)
 sns.set_theme(style="whitegrid")
 sns.color_palette("hls", 8)
-figsize=(12.8,6.4)
+figsize=(10.8,6.4)
 
 THROUGHPUT_YLABEL = "Throughput(tasks/second)"
 
@@ -28,7 +28,8 @@ def change_font(axes, title, fontsize):
 
     xlabel.set_fontsize(fontsize)
     ylabel.set_fontsize(fontsize)
-    axes.set_title(title, fontsize=fontsize)
+    if not title is None:
+        axes.set_title(title, fontsize=fontsize)
     axes.legend(prop=dict(size=fontsize))
 
 """
@@ -140,8 +141,8 @@ def tagging():
     
     sns.barplot(data=df, x="Component", y="Time(microseconds)", ax=ax)
     ax.set_yscale("log")
-    change_font(ax, "Time spent in each component", fontsize=20)
-    f.savefig("tagging.png")
+    change_font(ax, None, fontsize=20)
+    f.savefig("tagging.png", dpi=500)
 
 def interchange_tagging():
     # workload fib(25) 144 workers 1 manager htex
@@ -154,9 +155,8 @@ def interchange_tagging():
     df = pd.DataFrame({"Time(microseconds)": time, "Component": component})
     sns.barplot(data=df, x="Component", y="Time(microseconds)", ax=ax, width=.4)
     ax.set_yscale("log")
-    # ax.set_title("Time spent within the Interchange")
-    change_font(ax, "Time spent within the Interchange", fontsize=20)
-    f.savefig("interchange_tagging.png")
+    change_font(ax, None, fontsize=20)
+    f.savefig("interchange_tagging.png", dpi=500)
 
 def print_direct_to_worker_txt():
     for i in range(5, 30, 5):
@@ -510,9 +510,6 @@ def profiling_chart():
     f, ax = survey(data, labels)
     f.savefig("parsl_profiled.png")
 
-    #dfkexec_val = [0.858, 0.184, 0.169, 0.145, 0.141, 0.137, 0.089, 0.083, 0.072, 0.049]
-    #dfkexec_lbl = [labels[1], ]
-
 #f = open("dfkbench.txt", "r")
 #batch = [i+1 for i in range(500)]
 #throughput = [float(line) for line in f]
@@ -527,8 +524,8 @@ def profiling_chart():
 #f2.suptitle("DFK Throughput no-op 500k")
 #f1.savefig("dfkbench_line.png")
 #f2.savefig("dfkbench_hist.png")
-#tagging()
-#interchange_tagging()
+tagging()
+interchange_tagging()
 #nologgingthroughput()
 #nologging_direct_vs_htex()
 #nologging_cdfkthroughput()
@@ -546,7 +543,7 @@ def profiling_chart():
 #smiknn_cdfk()
 #smiknn_serial()
 #smiknn_stdparsl()
-profiling_chart()
+#profiling_chart()
 
 #pandanite()
 #pbft()
