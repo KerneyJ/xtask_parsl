@@ -4,3 +4,4 @@ benchmarks/*
 prof/*
 analysis/*
 test.py
+*.png
