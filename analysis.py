@@ -1,4 +1,5 @@
 #!../analysis/bin/python3
+import math
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -449,15 +450,14 @@ def smiknn_stdparsl():
 
 def profiling_chart():
     sns.color_palette("hls", 8)
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
 
     def normalize(array):
         s = sum(array)
         return [(a / s) * 100 for a in array]
 
-    labels = ["Socket Send",
-              "Socket Recv",
-              "Socket Poll",
+    labels = ["Send",
+              "Recv",
+              "Poll",
               "Thread Mgmt",
               "Logging",
               "Python Std Lib",
@@ -465,17 +465,16 @@ def profiling_chart():
               "Queue Operation",
               "Lock Operation",
               "Parsl Operation",
-              "Misc"
     ]
 
     data = {
-            "DFK + Executor": normalize([(0.44525168655941877 + 0.07109496626881162), 0, 0.07524649714582252, 0.08770108977685522, 0, 0, (0.043072132848988066+0.037363777893098075), 0, 0, (0.07317073170731707+0.09548521017125064+0.02542812662169175), 0]),
-            "Interchange: Main": normalize([0.385+0.046, 0.164, 2.609, 0, 0.033, 0.091+0.054+0.035+0.031, 0, 0.047, 0, 0, 0]),
-            "Interchange: Task Puller": normalize([0, 3.844, 0, 0.007+0.008+0.033, 0.012+0.018, 0, 0.054, 0.059+0.007, 0, 0, 0]),
-            "Interchange: Cmd Thread": normalize([0, 2.476, 0, 0, 0, 0, 0, 0, 0.080, 0, 0]),
-            "Manager: Task Puller": normalize([0.028, 0.008, 1.591, 0.005, 0.007, 0.005+0.004, 0.012, 0.014, 0, 0.010, 0]),
-            "Manager: Result Pusher": normalize([0.039, 0.090+0.034, 1.099, 0, 0, 0.022+0.043, 0, 0.054+0.042+0.046+0.022, 0, 0, 0]),
-            "Worker": normalize([0, 0.586, 0, 0, 0, 0.0001, 0, 0.0003, 0.4007, 0.0002, 0])
+            "DFK + Executor": normalize([(0.44525168655941877 + 0.07109496626881162), 0, 0.07524649714582252, 0.08770108977685522, 0, 0, (0.043072132848988066+0.037363777893098075), 0, 0, (0.07317073170731707+0.09548521017125064+0.02542812662169175)]),
+            "Interchange: Main": normalize([0.385+0.046, 0.164, 2.609, 0, 0.033, 0.091+0.054+0.035+0.031, 0, 0.047, 0, 0]),
+            "Interchange: Task Puller": normalize([0, 3.844, 0, 0.007+0.008+0.033, 0.012+0.018, 0, 0.054, 0.059+0.007, 0, 0]),
+            "Interchange: Cmd Thread": normalize([0, 2.476, 0, 0, 0, 0, 0, 0, 0.080, 0]),
+            "Manager: Task Puller": normalize([0.028, 0.008, 1.591, 0.005, 0.007, 0.005+0.004, 0.012, 0.014, 0, 0.010]),
+            "Manager: Result Pusher": normalize([0.039, 0.090+0.034, 1.099, 0, 0, 0.022+0.043, 0, 0.054+0.042+0.046+0.022, 0, 0]),
+            "Worker": normalize([0, 0.586, 0, 0, 0, 0.0001, 0, 0.0003, 0.4007, 0.0002])
     }
 
     def survey(results, category_names):
@@ -485,7 +484,7 @@ def profiling_chart():
         category_colors = plt.colormaps['RdYlGn'](
             np.linspace(0.15, 0.85, data.shape[1]))
 
-        fig, ax = plt.subplots(figsize=(20, 6.4))
+        fig, ax = plt.subplots(figsize=(20, 7.2))
         ax.invert_yaxis()
         ax.xaxis.set_visible(False)
         ax.set_xlim(0, np.sum(data, axis=1).max())
@@ -498,19 +497,18 @@ def profiling_chart():
             text_color = 'white' # if r * g * b < 0.5 else 'darkgrey'
             # ax.bar_label(rects, label_type='center', color=text_color)
 
-        threshold = 1
+        threshold = 2
         for c in ax.containers:
             # Filter the labels
             labels = [math.ceil(v*100)/100 if v > threshold else "" for v in c.datavalues]
             ax.bar_label(c, labels=labels, label_type="center", color="white")
 
-        ax.legend(ncols=len(category_names), bbox_to_anchor=(0, 1),
-              loc='lower left', fontsize='small')
+        ax.legend(ncols=len(category_names), bbox_to_anchor=(0, 1), loc='lower left', fontsize='medium')
+
         return fig, ax
 
     f, ax = survey(data, labels)
-
-    f.savefig("test.png")
+    f.savefig("parsl_profiled.png")
 
     #dfkexec_val = [0.858, 0.184, 0.169, 0.145, 0.141, 0.137, 0.089, 0.083, 0.072, 0.049]
     #dfkexec_lbl = [labels[1], ]
