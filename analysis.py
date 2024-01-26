@@ -9,7 +9,6 @@ import numpy as np
 from matplotlib.scale import LogScale
 
 sns.color_palette("hls", 8)
-# sns.set(font_scale=5)
 sns.set_theme(style="whitegrid")
 sns.color_palette("hls", 8)
 figsize=(12.8,10.24)
@@ -31,35 +30,6 @@ def change_font(axes, title, fontsize):
     if not title is None:
         axes.set_title(title, fontsize=fontsize)
     axes.legend(prop=dict(size=fontsize))
-
-"""
-def pandanite():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-
-    bps = [0.894, 1.09, 1.2, 1.2]
-    nodes = [5, 10, 20, 40]
-    df = pd.DataFrame({"Nodes": nodes, "Throughput(Blocks/Second)": bps})
-    sns.barplot(df, x="Nodes", y="Throughput(Blocks/Second)", ax=ax, width=.4)
-    f.savefig("pandanite.png")
-
-def pbft():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-    latency = [123, 175, 241]
-    nodes = [2, 4, 8]
-    df = pd.DataFrame({"nodes": nodes, "latency(ms)": latency})
-    sns.barplot(df, x="nodes", y="latency(ms)", ax=ax, width=.4)
-    f.savefig("pbft.png")
-
-def mfmc():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-    students = [100, 200, 400, 800, 1600]
-    runtime = [.432, 1.642, 5.563, 20.634, 78.146]
-    df = pd.DataFrame({"Number of Students": students, "Runtime(s)": runtime})
-    sns.barplot(df, x="Number of Students", y="Runtime(s)", ax=ax, width=.4)
-    ax.set_title("Runtime of Optimal Assignment")
-    ax.set_yscale(LogScale(1, base=10))
-    f.savefig("logmfmc.png")
-"""
 
 def nologgingthroughput():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
@@ -554,20 +524,6 @@ def sq_profiled():
     change_font(ax, None, fontsize=20)
     f.savefig("worker_sq.png", dpi=500)
 
-#f = open("dfkbench.txt", "r")
-#batch = [i+1 for i in range(500)]
-#throughput = [float(line) for line in f]
-#df = pd.DataFrame({"Batch": batch, "Throughput(task/second)": throughput})
-#f1, ax1 = plt.subplots(nrows=1, ncols=1, figsize=(6.4,6.4))
-#f2, ax2 = plt.subplots(nrows=1, ncols=1, figsize=(6.4,6.4))
-#
-#ax2.set_ylabel("Batch")
-#sns.lineplot(data=df, x="Batch", y="Throughput(task/second)", ax=ax1)
-#sns.histplot(data=df, x="Throughput(task/second)", kde=True, ax=ax2)
-#f1.suptitle("DFK Throughput no-op 500k")
-#f2.suptitle("DFK Throughput no-op 500k")
-#f1.savefig("dfkbench_line.png")
-#f2.savefig("dfkbench_hist.png")
 tagging()
 interchange_tagging()
 #nologgingthroughput()
