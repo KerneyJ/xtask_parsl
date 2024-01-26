@@ -238,8 +238,7 @@ def granularity_cdfkdirex():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    # f.suptitle("Throughput of CDFK DIREX at Different Granularities")
-    change_font(ax, "Throughput of CDFK DIREX at Different Granularities", fontsize=20)
+    change_font(ax, None, fontsize=20)
     f.savefig("granularity_cdfkdirex.png")
 
 def granularity_pdfkhtex():
@@ -262,8 +261,7 @@ def granularity_pdfkhtex():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    # f.suptitle("Throughput of Python DFK HTEX at Different Granularities")
-    change_font(ax, "Throughput of Python DFK HTEX at Different Granularities", fontsize=20)
+    change_font(ax, None, fontsize=20)
     f.savefig("granularity_pdfkhtex.png")
 
 def granularity_dask():
@@ -271,7 +269,7 @@ def granularity_dask():
     dask_0us = [29.53185087770398,15.480700585691375,8.258053458703216,5.152660356592969,4.346021985498373,5.064179336500819,9.296009012300056,45.72336811890127]
     dask_10us = [30.02078281409922,15.532390564802336,8.227846888205386,5.188785553703201,4.394784313900163,5.048121868399903,9.543887097397237,43.47842378669884]
     dask_1000us = [35.87134775070008,16.898433726397343,8.69462291020027,5.710084404796362,4.501105657705921,5.345659045997309,9.482958284195046,43.470774537502436]
-    qdask_10000us = [228.6374506703054,94.61450708560297,28.851210198696936,15.580414767999901,8.84547327249893,6.271609366402845,10.986490468599367,44.284311394297404]
+    dask_10000us = [228.6374506703054,94.61450708560297,28.851210198696936,15.580414767999901,8.84547327249893,6.271609366402845,10.986490468599367,44.284311394297404]
     dask_tot = dask_0us + dask_10us + dask_1000us + dask_10000us
     dask_throughput = [10000 / t for t in dask_tot]
     dask_gran = 8*["0us"] + 8*["10us"] + 8*["1ms"] + 8*["10ms"]
@@ -286,8 +284,7 @@ def granularity_dask():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    # f.suptitle("Throughput of Dask at different Granularities")
-    change_font(ax, "Throughput of Dask at Different Granularities", fontsize=20)
+    change_font(ax, None, fontsize=20)
     f.savefig("granularity_dask.png")
 
 def granularity_ray():
@@ -311,8 +308,7 @@ def granularity_ray():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    # f.suptitle("Throughput of Ray at different Granularities")
-    change_font(ax, "Throughput of Ray at Different Granularities", fontsize=20)
+    change_font(ax, None, fontsize=20)
     f.savefig("granularity_ray.png")
 
 def dfk_submit():
@@ -533,10 +529,12 @@ interchange_tagging()
 #gc_vs_nogc_throughput()
 singleq_vs_multiq()
 #cdfkdirex_vs_all()
-#granularity_cdfkdirex()
-#granularity_pdfkhtex()
-#granularity_dask()
-#granularity_ray()
+
+granularity_cdfkdirex()
+granularity_pdfkhtex()
+granularity_dask()
+granularity_ray()
+
 #dfk_submit()
 #dfk_lir()
 #dfk_lau()
