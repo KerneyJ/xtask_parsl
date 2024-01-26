@@ -12,7 +12,7 @@ sns.color_palette("hls", 8)
 # sns.set(font_scale=5)
 sns.set_theme(style="whitegrid")
 sns.color_palette("hls", 8)
-figsize=(10.8,6.4)
+figsize=(12.8,10.24)
 
 THROUGHPUT_YLABEL = "Throughput(tasks/second)"
 
@@ -135,13 +135,14 @@ def tagging():
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
     time = [8.477394580841065e-05, 3.8863635063171386e-05, 0.001304353952407837, 0.03159386081695557, 0.0002338757038116455, 5.925240516662598e-05, 0.00029827773571014407, 0.0005129362344741821]
     time = [t * 1000000 for t in time]
-    component = ["dfk", "executor", "exc->int", "interchange", "int->man", "manager", "man->wor", "worker"]
+    component = ["dfk", "executor", "exc→int", "interchange", "int→man", "manager", "man→wor", "worker"]
     
     df = pd.DataFrame({"Time(microseconds)": time, "Component": component})
     
     sns.barplot(data=df, x="Component", y="Time(microseconds)", ax=ax)
     ax.set_yscale("log")
     change_font(ax, None, fontsize=20)
+    ax.tick_params(axis='x', rotation=-10)
     f.savefig("tagging.png", dpi=500)
 
 def interchange_tagging():
@@ -150,7 +151,7 @@ def interchange_tagging():
 
     time = [-3.887295722961426e-06, 0.031579251980781556, 1.0721540451049805e-05]
     time = [t * 1000000 for t in time]
-    component = ["task pull", "task pull -> main", "main"]
+    component = ["task pull", "task pull→main", "main"]
     
     df = pd.DataFrame({"Time(microseconds)": time, "Component": component})
     sns.barplot(data=df, x="Component", y="Time(microseconds)", ax=ax, width=.4)
@@ -211,7 +212,7 @@ def singleq_vs_multiq():
     ax.set_xticks(nworkers)
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     
-    change_font(ax, "Single Queue vs Muli-Queue Throughput", fontsize=20)
+    change_font(ax, "Single Queue vs Multi-Queue Throughput", fontsize=20)
     f.savefig("sqvmq_throughput.png")
 
 
@@ -510,6 +511,49 @@ def profiling_chart():
     f, ax = survey(data, labels)
     f.savefig("parsl_profiled.png")
 
+def direx_worker_profiled():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    thread_time = [1.477 + 0.024, 0.153 + 0.037 + 0.024, 0.035 + 0.026, 0.022 + 0.021, 0.029]
+    tot = sum(thread_time)
+    threadtime_percent = [t / tot for t in thread_time]
+    label = ["Recv", "Python Std Lib", "De/Serializing", "Queue Operation", "Parsl Operation"]
+
+    df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
+    sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
+    ax.tick_params(axis='x', rotation=-10)
+
+    change_font(ax, None, fontsize=20)
+    f.savefig("direx_worker_profiled.png", dpi=500)
+
+def mq_profiled():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    thread_time = [96.17, 1.50, 0.63, .14]
+    tot = sum(thread_time)
+    threadtime_percent = [t / tot for t in thread_time]
+    label = ["Recv", "Python Std Lib", "De/Serializing", "Queue Operation"]
+
+    df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
+    sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
+    ax.tick_params(axis='x', rotation=-10)
+
+    change_font(ax, None, fontsize=20)
+    f.savefig("worker_mq.png", dpi=500)
+
+def sq_profiled():
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    thread_time = [84.87, 10.19, 1.73, 0.8, 0.37]
+    tot = sum(thread_time)
+    threadtime_percent = [t / tot for t in thread_time]
+    label = ["Lock Operation", "Recv", "Python Std Lib", "De/Serializing", "Queue Operation"]
+
+    df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
+    sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
+    ax.tick_params(axis='x', rotation=-10)
+    # f.suptitle("DFK Launch If Ready")
+
+    change_font(ax, None, fontsize=20)
+    f.savefig("worker_sq.png", dpi=500)
+
 #f = open("dfkbench.txt", "r")
 #batch = [i+1 for i in range(500)]
 #throughput = [float(line) for line in f]
@@ -531,7 +575,7 @@ interchange_tagging()
 #nologging_cdfkthroughput()
 #cdfk_vs_pdfk_objcount()
 #gc_vs_nogc_throughput()
-#singleq_vs_multiq()
+singleq_vs_multiq()
 #cdfkdirex_vs_all()
 #granularity_cdfkdirex()
 #granularity_pdfkhtex()
@@ -544,7 +588,9 @@ interchange_tagging()
 #smiknn_serial()
 #smiknn_stdparsl()
 #profiling_chart()
-
+direx_worker_profiled()
+mq_profiled()
+sq_profiled()
 #pandanite()
 #pbft()
 #mfmc()
