@@ -5,3 +5,4 @@ prof/*
 analysis/*
 test.py
 *.png
+.ipynb_checkpoints/*
