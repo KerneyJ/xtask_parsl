@@ -13,8 +13,9 @@ sns.color_palette("hls", 8)
 sns.set_theme(style="whitegrid")
 sns.color_palette("hls", 8)
 figsize = (11.2, 4.8)
+singlechart_figsize=(8,8)
 twocolumn_figsize=(10.8, 7.2)
-wholecolumn_figsize=(9.6, 3.2)
+wholecolumn_figsize=(14.4, 3.2)
 
 SAVE_DIR = "./paper_figures/"
 THROUGHPUT_YLABEL = "Throughput(tasks/second)"
@@ -63,8 +64,7 @@ def nologging_cdfkthroughput():
     ax.set_yticks([64, 128, 256, 512, 1024, 2048, 4096, 8192])
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-    # f.suptitle("Python DFK vs C DFK")
-    change_font(ax, "Python DFK vs C DFK", fontsize=20)
+    # change_font(ax, "Python DFK vs C DFK", fontsize=20)
     f.savefig(SAVE_DIR + "nolog_pdfk_vs_cdfk.png")
 
 def direct_vs_htex():
@@ -152,7 +152,7 @@ def memory_footprint():
     f.savefig(SAVE_DIR + "memory_footprint.png")
 
 def singleq_vs_multiq():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=singlechart_figsize)
     nworkers = [1, 2, 4, 8, 16, 32, 64, 128]
     mqruntime = [2.484412097930908, 2.337325692176819, 2.476684904098511, 2.6450060844421386, 2.6758565664291383, 2.657198667526245, 2.6968280553817747, 2.6850218296051027]
     sqruntime = [2.1922109127044678, 1.9805155754089356, 1.846487283706665, 1.8778392553329468, 1.9182080030441284, 1.9445616722106933, 1.9980420112609862, 2.0566566228866576]
@@ -165,7 +165,7 @@ def singleq_vs_multiq():
     ax.set_xticks(nworkers)
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    change_font(ax, "Single Queue vs Multi-Queue Throughput", fontsize=20)
+    change_font(ax, None, fontsize=20)
     f.savefig(SAVE_DIR + "sqvmq_throughput.png")
 
 def cdfkdirex_cmp():
@@ -221,7 +221,7 @@ def cdfkdirex_cmp():
     f.savefig(SAVE_DIR + "cdfkdirex_cmp.png")
 
 def granularity_cmp():
-    f, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=wholecolumn_figsize)
+    f, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=wholecolumn_figsize, sharey=True)
     def granularity_pdfkhtex(ax):
         pdfkhtex_0us = [208.56073191165925,104.15164544582368,52.234071254730225,26.408666682243346,13.421913957595825,6.915656852722168, 3.7138410568237306, 2.0781458139419557]
         pdfkhtex_10us = [207.95815584659576,104.0417453289032,52.20868666172028,26.371598625183104,13.435020303726196,6.920794987678528,3.722451400756836,2.08894145488739]
@@ -240,6 +240,7 @@ def granularity_cmp():
         ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_title("Python DFK HTEX")
 
         # change_font(ax, None, fontsize=20)
 
@@ -261,6 +262,7 @@ def granularity_cmp():
         # ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_title("Dask")
 
         # change_font(ax, None, fontsize=20)
 
@@ -283,12 +285,15 @@ def granularity_cmp():
         ax.set_yticks([128, 256, 512, 1024, 2048, 4096, 8192])
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_title("Ray")
 
         # change_font(ax, None, fontsize=20)
 
     granularity_pdfkhtex(ax1)
     granularity_ray(ax2)
     granularity_dask(ax3)
+    plt.setp(ax3.get_yticklabels(), visible=False)
+    plt.setp(ax2.get_yticklabels(), visible=False)
     f.savefig(SAVE_DIR + "granularity_cmp.png")
 
 def dfk_submit():
@@ -337,7 +342,7 @@ def dfk_lau():
 
 def smiknn_cdfk():
     sns.color_palette("hls", 8)
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=singlechart_figsize)
     runtime1kb = [1.3731940031051635,1.4861858367919922,1.8912609577178956,2.9374542951583864,5.234819602966309,9.829994821548462,17.870266795158386, 34.35889132022858]
     runtime1hb = [3.0020461082458496,3.589237642288208,4.709066677093506,7.452650642395019,12.811346077919007,24.993502283096312,49.22772607803345, 98.6276061296463]
     runtime10b = [29.144734621047974,29.995630931854247,31.044559264183043,38.37913780212402,57.140538811683655,95.18248608112336,177.26502811908722, 348.85890247821806]
@@ -354,28 +359,27 @@ def smiknn_cdfk():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_legend().set_title("Batch Size")
-    change_font(ax, "Parsl Dock Runtime CDFK DIREX", fontsize=20)
-    f.savefig(SAVE_DIR + "smiknn_cdfk.png")
+    change_font(ax, None, fontsize=20)
+    f.savefig(SAVE_DIR + "smiknn_cdfk.png", dpi=300)
 
 def smiknn_serial():
     sns.color_palette("hls", 8)
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=singlechart_figsize)
     blocks = [10, 100, 1000]
     runtime = [278.50316815376283,75.43989520072937, 36.34670898914337]
     df = pd.DataFrame({"Batch Size": blocks, "Runtime(s)": runtime})
     sns.barplot(df, x="Batch Size", y="Runtime(s)", ax=ax, width=.4, errorbar=None)
     ax.tick_params(axis='x', rotation=-30)
-    # f.suptitle("DFK Submit function")
     ax.set_yscale(LogScale(2, base=2))
     ax.set_yticks([1, 2, 4, 8, 16, 32, 64, 128, 256])
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    change_font(ax, "Parsl Dock Runtime Serial", fontsize=17)
-    f.savefig(SAVE_DIR + "smiknn_serial.png")
+    change_font(ax, None, fontsize=20)
+    f.savefig(SAVE_DIR + "smiknn_serial.png", dpi=500)
 
 def smiknn_stdparsl():
     sns.color_palette("hls", 8)
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=singlechart_figsize)
     runtime1kb = [85.91678261756897, 52.32095193862915, 28.867486000061035, 16.70747947692871, 11.025074243545532, 12.883922815322876, 18.67558479309082, 35.36358094215393]
     runtime1hb = [111.31407427787781, 55.32581114768982, 31.289098739624023, 20.393805742263794, 18.803539276123047, 28.136523723602295, 48.0152530670166, 96.20473098754883]
     runtime = runtime1kb + runtime1hb
@@ -392,8 +396,8 @@ def smiknn_stdparsl():
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_legend().set_title("Batch Size")
-    change_font(ax, "Parsl Dock Runtime CDFK DIREX", fontsize=20)
-    f.savefig(SAVE_DIR + "smiknn_stdparsl.png")
+    change_font(ax, None, fontsize=20)
+    f.savefig(SAVE_DIR + "smiknn_stdparsl.png", dpi=300)
 
 def parsl_profiled():
     sns.color_palette("hls", 8)
@@ -470,77 +474,106 @@ def parsl_profiled():
     f.savefig(SAVE_DIR + "parsl_profiled.png")
 
 
-# nologging_direct_vs_htex and direx_worker_profiled are grouped together
-def nologging_direct_vs_htex():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=twocolumn_figsize)
-    druntime = [1.8335903406143188, 1.7716833353042603, 1.8989869435628255, 1.876910098393758, 1.9401285171508789, 1.967039171854655, 1.9942612012227376, 2.0535037597020467]
-    hruntime = [208.69511485099792, 104.06894159317017, 52.18400287628174, 26.351411819458008, 13.301186561584473, 6.86055326461792, 3.694573163986206, 2.37636137008667]
+def direx():
+    f, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=figsize)
+    def nologging_direct_vs_htex(ax):
+        druntime = [1.8335903406143188, 1.7716833353042603, 1.8989869435628255, 1.876910098393758, 1.9401285171508789, 1.967039171854655, 1.9942612012227376, 2.0535037597020467]
+        hruntime = [208.69511485099792, 104.06894159317017, 52.18400287628174, 26.351411819458008, 13.301186561584473, 6.86055326461792, 3.694573163986206, 2.37636137008667]
+        nworkers=[1, 2, 4, 8, 16, 32, 64, 128]
+        dthroughput = [10000 / t for t in druntime]
+        hthroughput = [10000 / t for t in hruntime]
+        df = pd.DataFrame({THROUGHPUT_YLABEL: dthroughput + hthroughput, "Workers": nworkers + nworkers, "Executor": 8 * ["DIREX"] + 8 *["HTEX"]})
+        sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Executor", marker="o", ax=ax)
+        ax.set_xscale(LogScale(1, base=2))
+        ax.set_yscale(LogScale(2, base=2))
+        ax.set_xticks(nworkers)
+        ax.set_yticks([64, 128, 256, 512, 1024, 2048, 4096, 8192])
+        ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+        # f.suptitle("Direct to Worker vs HTEX")
+        # change_font(ax, "Direct to Worker vs HTEX", fontsize=15)
+        # f.savefig(SAVE_DIR + "nolog_direct_vs_htex.png")
+
+    def direx_worker_profiled(ax):
+        thread_time = [1.477 + 0.024, 0.153 + 0.037 + 0.024, 0.035 + 0.026, 0.022 + 0.021, 0.029]
+        tot = sum(thread_time)
+        threadtime_percent = [t / tot for t in thread_time]
+        label = ["Recv", "Python Std Lib", "De/Serializing", "Queue Operation", "Parsl Operation"]
+
+        df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
+        sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
+        ax.tick_params(axis='x', rotation=-10)
+
+        # change_font(ax, None, fontsize=15)
+        # f.savefig(SAVE_DIR + "direx_worker_profiled.png") # , dpi=300)
+
+    nologging_direct_vs_htex(ax1)
+    direx_worker_profiled(ax2)
+    f.savefig(SAVE_DIR + "direx.png")
+
+def sqmq_profiled():
+    f, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=figsize, sharey=True)
+    def mq_profiled(ax):
+        thread_time = [96.17, 1.50, 0.63, .14]
+        tot = sum(thread_time)
+        threadtime_percent = [t / tot for t in thread_time]
+        label = ["Recv", "Python Std Lib", "De/Serializing", "Queue Operation"]
+
+        df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
+        sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
+        ax.tick_params(axis='x', rotation=-10)
+        #ax.set_title("Multi-Queue Worker Profiled")
+        ax.set_ylabel("")
+        # change_font(ax, None, fontsize=20)
+        # f.savefig(SAVE_DIR + "worker_mq.png", dpi=500)
+
+    def sq_profiled(ax):
+        thread_time = [84.87, 10.19, 1.73, 0.8, 0.37]
+        tot = sum(thread_time)
+        threadtime_percent = [t / tot for t in thread_time]
+        label = ["Lock Operation", "Recv", "Python Std Lib", "De/Serializing", "Queue Operation"]
+
+        df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
+        sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
+        ax.tick_params(axis='x', rotation=-10)
+        #ax.set_title("Single Queue Worker Profiled")
+        # change_font(ax, None, fontsize=20)
+        # f.savefig(SAVE_DIR + "worker_sq.png", dpi=500)
+
+    sq_profiled(ax1)
+    mq_profiled(ax2)
+    plt.setp(ax2.get_yticklabels(), visible=False)
+    f.savefig(SAVE_DIR + "sqmq_profiled.png")
+
+def multinode():
+    palette = sns.color_palette()
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
+    single_runtime = [1.113578200340271, 1.1074100494384767, 1.103058385848999, 1.1020861387252807, 1.6579477310180664, 1.138422155380249, 1.140928530693054, 1.210385251045227]
+    multi_runtime = [math.nan, math.nan, math.nan, 1.8236408472061156, 1.3253450870513916, 1.2657896280288696, 1.0988668918609619, 1.1217608213424684]
     nworkers=[1, 2, 4, 8, 16, 32, 64, 128]
-    dthroughput = [10000 / t for t in druntime]
-    hthroughput = [10000 / t for t in hruntime]
-    df = pd.DataFrame({THROUGHPUT_YLABEL: dthroughput + hthroughput, "Workers": nworkers + nworkers, "Executor": 8 * ["DIREX"] + 8 *["HTEX"]})
-    sns.lineplot(data=df, x="Workers", y=THROUGHPUT_YLABEL, hue="Executor", marker="o", ax=ax)
+
+    single_throughput = [10000 / t for t in single_runtime]
+    multi_throughput = [10000 / t for t in multi_runtime]
+    df = pd.DataFrame({"Throughput": single_throughput+ multi_throughput, "Workers": 2 * nworkers, "Nodes": 8 * [1] + 8 * [8]})
+    sns.lineplot(data=df, x="Workers", y="Throughput", hue="Nodes", marker="o", ax=ax, palette=palette)
     ax.set_xscale(LogScale(1, base=2))
     ax.set_yscale(LogScale(2, base=2))
-    ax.set_xticks(nworkers)
+    ax.set_xticks(nworkers, nworkers, weight="normal")
     ax.set_yticks([64, 128, 256, 512, 1024, 2048, 4096, 8192])
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    change_font(ax, None, 15)
+    f.savefig(SAVE_DIR + "multinode.png")
 
-    # f.suptitle("Direct to Worker vs HTEX")
-    change_font(ax, "Direct to Worker vs HTEX", fontsize=15)
-    f.savefig(SAVE_DIR + "nolog_direct_vs_htex.png")
-
-def direx_worker_profiled():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=twocolumn_figsize)
-    thread_time = [1.477 + 0.024, 0.153 + 0.037 + 0.024, 0.035 + 0.026, 0.022 + 0.021, 0.029]
-    tot = sum(thread_time)
-    threadtime_percent = [t / tot for t in thread_time]
-    label = ["Recv", "Python Std Lib", "De/Serializing", "Queue Operation", "Parsl Operation"]
-
-    df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
-    sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
-    ax.tick_params(axis='x', rotation=-10)
-
-    change_font(ax, None, fontsize=15)
-    f.savefig(SAVE_DIR + "direx_worker_profiled.png") # , dpi=300)
-
-def mq_profiled():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-    thread_time = [96.17, 1.50, 0.63, .14]
-    tot = sum(thread_time)
-    threadtime_percent = [t / tot for t in thread_time]
-    label = ["Recv", "Python Std Lib", "De/Serializing", "Queue Operation"]
-
-    df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
-    sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
-    ax.tick_params(axis='x', rotation=-10)
-
-    change_font(ax, None, fontsize=20)
-    f.savefig(SAVE_DIR + "worker_mq.png", dpi=500)
-
-def sq_profiled():
-    f, ax = plt.subplots(nrows=1, ncols=1, figsize=figsize)
-    thread_time = [84.87, 10.19, 1.73, 0.8, 0.37]
-    tot = sum(thread_time)
-    threadtime_percent = [t / tot for t in thread_time]
-    label = ["Lock Operation", "Recv", "Python Std Lib", "De/Serializing", "Queue Operation"]
-
-    df = pd.DataFrame({"Percentage of Thread Time": threadtime_percent, "Category": label})
-    sns.barplot(df, x="Category", y="Percentage of Thread Time", ax=ax, width=.4)
-    ax.tick_params(axis='x', rotation=-10)
-    # f.suptitle("DFK Launch If Ready")
-
-    change_font(ax, None, fontsize=20)
-    f.savefig(SAVE_DIR + "worker_sq.png", dpi=500)
 
 unified_tagging()
 
 #nologgingthroughput()
-#nologging_cdfkthroughput()
+nologging_cdfkthroughput()
 #cdfk_vs_pdfk_objcount()
 #gc_vs_nogc_throughput()
-#singleq_vs_multiq()
+singleq_vs_multiq()
 #cdfkdirex_vs_all()
 
 cdfkdirex_cmp()
@@ -548,21 +581,20 @@ cdfkdirex_cmp()
 granularity_cmp()
 
 memory_footprint()
+direx()
 #dfk_submit()
 #dfk_lir()
 #dfk_lau()
 
-#smiknn_cdfk()
-#smiknn_serial()
-#smiknn_stdparsl()
+smiknn_cdfk()
+smiknn_serial()
+smiknn_stdparsl()
 
 #parsl_profiled()
 
 #direx_worker_profiled()
 #nologging_direct_vs_htex()
 
-#mq_profiled()
-#sq_profiled()
-#pandanite()
-#pbft()
-#mfmc()
+sqmq_profiled()
+
+multinode()
